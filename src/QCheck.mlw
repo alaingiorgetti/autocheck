@@ -1,0 +1,93 @@
+(********************************************************************)
+(* Copyright (C) 2020 Clotilde Erard and Alain Giorgetti            *)
+(* FEMTO-ST institute                                               *)
+(********************************************************************)
+
+(********************************************************************)
+(*  This software is distributed under the terms of the GNU Lesser  *)
+(*  General Public License version 2.1                              *)
+(********************************************************************)
+
+(* QCheck.mlw: Specification of random testing in WhyML, for extraction with 
+   Why3 and test execution with QCheck tool.
+*)
+
+module RS (* = Random.State *)
+
+  type t
+
+end
+
+
+module Gen
+
+  use RS
+  use array.Array
+
+  type t 'a = RS.t -> 'a
+
+  val int : RS.t -> int
+  val int_bound : int -> RS.t -> int
+  val int_range : int -> int -> RS.t -> int
+  val array_size : (int -> int) -> (int -> int) -> int -> array int
+
+end
+
+
+(** Random generators *)
+module QCheck
+
+  use RS
+  use Gen
+  use option.Option
+  use list.List
+  use array.Array
+
+  type arbitrary 'a = {
+    gen: t 'a;
+  }
+
+  val function unit : arbitrary unit
+  val function bool : arbitrary bool
+  val function int : arbitrary int
+  val function int_range (a b: int) : arbitrary int
+  val function int_bound (a: int) : arbitrary int
+  val function pair (a: arbitrary 'a) (b: arbitrary 'b) : arbitrary ('a,'b)
+  val function triple (a: arbitrary 'a) (b: arbitrary 'b) (c: arbitrary 'c) : arbitrary ('a,'b,'c)
+  val function quad (a: arbitrary 'a) (b: arbitrary 'b) (c: arbitrary 'c) (d: arbitrary 'd) : arbitrary ('a,'b,'c,'d)
+  val function option (a: arbitrary 'a) : arbitrary (option 'a)
+  val function list (a: arbitrary 'a) : arbitrary (list 'a)
+  val function list_of_size (n : Gen.int) (a: arbitrary 'a) : arbitrary (list 'a)
+  val function array (a: arbitrary 'a) : arbitrary {array 'a}
+  val function array_of_size (n: Gen.int) (a: arbitrary 'a) : arbitrary {array 'a}
+
+end
+
+
+(** Tests *)
+module Test
+
+  use QCheck
+
+  type cell 'a = {
+    law : 'a -> bool;
+    arb : arbitrary 'a;
+    count : int;
+  }
+
+  type t 'a = cell 'a
+
+  val make (arb: arbitrary 'a) (law: 'a -> bool) : cell 'a
+  val make_count (arb: arbitrary 'a) (law: 'a -> bool) (count: int) : cell 'a
+
+end
+
+
+(** Test runner *)
+module QCheck_runner
+
+  use Test
+
+  val run_tests (tc: t 'a) : unit
+
+end

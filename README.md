@@ -8,11 +8,6 @@ FEMTO-ST institute (UMR CNRS 6174)
 
 Contact: alain.giorgetti AT femto-st.fr
 
-Documentation
-=============
-
-The project is documented by the present file and in [EG20].
-
 Project home
 ============
 
@@ -22,6 +17,11 @@ Copyright
 =========
 
 This program is distributed under the GNU LGPL 3. See the enclosed file LICENSE.
+
+Documentation
+=============
+
+The project is documented by the present file and in [EG20].
 
 Installation
 ============
@@ -44,7 +44,7 @@ docs
 How to use this code?
 =====================
 
-See the file Makefile for the different possible actions.
+See [EG20, Sections 4 and 5] and the Makefile for the different possible actions.
 
 References
 ==========

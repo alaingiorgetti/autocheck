@@ -1,0 +1,451 @@
+(********************************************************************)
+(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* FEMTO-ST institute                                               *)
+(********************************************************************)
+
+(********************************************************************)
+(*  This software is distributed under the terms of the GNU Lesser  *)
+(*  General Public License version 2.1                              *)
+(********************************************************************)
+
+(* TestExamples.mlw: Examples of random and enumerative tests of WhyML
+   properties.
+*)
+
+(** Properties tested randomly and by enumeration *)
+module Properties
+
+  use int.Int
+  use int.Abs
+
+  let function is_unit (x: unit) : bool
+  =
+    match x with () -> False | _ -> True end
+
+  lemma l_unit: is_unit ()
+
+  (** Wrong property over integers, mutation of
+        lemma Abs_pos: forall x:int. abs x >= 0
+      from stdlib, with > instead of >=. *)
+
+  let wrong_abs_pos (n: int) : bool = abs n > 0
+
+end
+
+
+module RandomTests
+
+  (* Modules with code to test *)
+  use bool.Bool
+  use int.Int
+  use int.Abs
+  use int.EuclideanDivision
+  use int.ComputerDivision
+  use option.Option
+  use list.List
+  use list.Length
+  use array.Array
+  use list.Quant
+  (* Random testing tool *)
+  use QCheck.Gen
+  use QCheck.Test
+  use QCheck.QCheck
+  use QCheck.QCheck_runner
+  (* Properties to test *)
+  use Properties
+
+  (** unit type *)
+
+  let is_unit_test = QCheck_runner.run_tests (
+    Test.make
+      QCheck.unit
+      is_unit
+  )
+
+  (** bool type *)
+
+  (** Tests with a pair of Booleans *)
+
+  let bool_pair_arbitrary = QCheck.pair QCheck.bool QCheck.bool
+
+  (* User-defined function for Boolean equivalence: *)
+  let function equivb (x y : bool) : bool
+  =
+    match x with
+    | True -> y
+    | False -> notb y
+    end
+
+  (** Property that equivalence is the conjunction of two implications. *)
+  let function equivb_prop (x : (bool,bool)) : bool
+  =
+    let (a,b) = x in
+    match andb (implb a b) (implb b a) with
+    | True  -> equivb a b
+    | False -> notb (equivb a b)
+    end
+
+  let equivb_test = QCheck_runner.run_tests (Test.make bool_pair_arbitrary equivb_prop)
+
+  (** Propositional tautology with two propositions: a or b <-> b or a *)
+
+  let orb_commut (x: (bool,bool)) : bool
+  =
+    let (a,b) = x in equivb (orb a b) (orb b a)
+
+  let orb_commut_test = QCheck_runner.run_tests (Test.make bool_pair_arbitrary orb_commut)
+
+  (** Test of de Morgan's laws *)
+
+  let morgan_laws (x: (bool,bool)) : bool
+  =
+    let (a,b) = x in
+    andb
+      (equivb (notb (orb a b)) (andb (notb a) (notb b)))
+      (equivb (notb (andb a b)) (orb (notb a) (notb b)))
+
+  let morgan_test = QCheck_runner.run_tests (Test.make bool_pair_arbitrary morgan_laws)
+
+  (** Int type *)
+
+  let wrong_abs_pos_test1 =
+    QCheck_runner.run_tests (Test.make QCheck.(int_range (-100000) 100000) wrong_abs_pos) (* No counterexample *)
+
+  let wrong_abs_pos_test2 =
+    QCheck_runner.run_tests (Test.make QCheck.(int_range (-10) 10) wrong_abs_pos) (* Counterexample found *)
+
+  (** Test of
+        lemma Abs_le: forall x y:int. abs x <= y <-> -y <= x <= y
+      from stdlib. *)
+
+  lemma Abs_le_copy: forall x y:int. abs x <= y <-> -y <= x <= y
+
+  let abs_le (n: (int, int)) : bool
+  =
+    let (x,y) = n in equivb (abs x <= y) (-y <= x <= y)
+
+  let pair_int_arbitrary = QCheck.(pair QCheck.(int_range (-10) 10) QCheck.(int_range (-10) 10))
+
+  let abs_le_test = QCheck_runner.run_tests (Test.make pair_int_arbitrary abs_le)
+
+
+  (** EuclideanDivision *)
+
+  let div_unique (n: (int,int,int)) : bool
+  =
+    let (x,y,q) = n in
+    implb (y > 0) (implb (q * y <= x < q * y + y) (div x y = q))
+
+  let div_unique_test = QCheck_runner.run_tests (
+    Test.make
+      QCheck.(triple 
+        (QCheck.int_range (-10000) 10000)
+        (QCheck.int_range (-10000) 10000)
+        (QCheck.int_range (-10000) 10000))
+      div_unique
+  )
+
+  let div_bound (n: (int,int)) : bool
+  =
+    let (x,y) = n in
+    implb (x >= 0 && y > 0) (0 <= div x y <= x)
+
+  let div_bound_test = QCheck_runner.run_tests (
+    Test.make 
+      QCheck.(pair QCheck.int QCheck.int)
+      div_bound
+  )
+
+  (** ComputerDivision *)
+
+  let rounds_towards_zero (n: (int,int)) : bool
+  =
+    let (x,y) = n in
+    implb (x <> 0) (abs (div x y * y) <= abs x)
+
+  let rounds_towards_zero_test = QCheck_runner.run_tests (
+    Test.make 
+      QCheck.(pair QCheck.int QCheck.int)
+      rounds_towards_zero
+  )
+
+  let div_1 (x: int) : bool
+  =
+    (div x 1) = x
+
+  let div_1_test = QCheck_runner.run_tests (Test.make QCheck.int div_1)
+
+  let mod_1 (x: int) : bool
+  =
+    (mod x 1) = 0
+
+  let mod_1_test = QCheck_runner.run_tests (Test.make QCheck.int mod_1)
+
+  let div_inf (n: (int,int)) : bool
+  =
+    let (x,y) = n in
+    implb (0 <= x < y) (div x y = 0)
+
+  let div_inf_test = QCheck_runner.run_tests (Test.make QCheck.(pair QCheck.int QCheck.int) div_inf)
+
+  (** False property : exception Division_by_zero *)
+  let int_prop (x: int) : bool
+  = 
+    div x x = 1
+
+  let int_test = QCheck_runner.run_tests (Test.make QCheck.(int_bound 100) int_prop)
+
+  (** option type *)
+
+  let function is_none (x: option 'a) : bool =
+    match x with None -> True | _ -> False end
+
+  let is_none_test = QCheck_runner.run_tests (
+    Test.make 
+      QCheck.(option QCheck.int) 
+      is_none
+  )
+
+  (** list type *)
+
+  (* First example of test with a predefined 'let predicate' *)
+  let is_nil_test
+  =
+    QCheck_runner.run_tests (Test.make QCheck.(list QCheck.bool) is_nil)
+
+  (** Test of a wrong mutation
+        lemma Length_nonnegative': forall l: list 'a. length l > 0
+      of
+        lemma Length_nonnegative: forall l: list 'a. length l >= 0
+      from stdlib. *)
+
+  let wrong_length_nonnegative (l: list 'a) : bool
+  =
+    length l > 0
+
+  let wrong_length_nonnegative_test = QCheck_runner.run_tests (
+    Test.make
+      QCheck.(list_of_size 5 QCheck.bool)
+      wrong_length_nonnegative) (* No counterexample, 
+                                   because only lists of size 5 are tested. *)
+
+  let test_nonnegative2 = QCheck_runner.run_tests 
+    (Test.make QCheck.(list QCheck.bool) wrong_length_nonnegative)  (* Counterexample found *)
+
+  (** Test of 
+        lemma Length_nil: forall l: list 'a. length l = 0 <-> l = Nil
+      from stdlib. *)
+
+  let length_nil (l: list 'a) : bool
+  =
+    equivb (length l = 0) (is_nil l)
+
+  let length_nil_test = QCheck_runner.run_tests (Test.make QCheck.(list QCheck.int) length_nil)
+
+  (** Test for parity of a list of integers *) 
+
+  (* Parity function *)
+  let is_even (n: int) : bool = mod n 2 = 0
+
+  let for_all_prop (l: list int) : bool = for_all is_even l
+
+  let for_all_test = QCheck_runner.run_tests (Test.make QCheck.(list QCheck.int) for_all_prop)
+
+  (** array type *)
+
+  let length_make (n: int) : bool
+  =
+    length (Array.make n 0) = n
+
+  let length_make_test = QCheck_runner.run_tests (
+    Test.make QCheck.(int_bound 10000) length_make)
+
+end
+
+
+module EnumerativeTests
+
+  use int.NumOf
+  use ref.Ref
+
+  (* Modules with code or properties to test *)
+  use bool.Bool
+  use int.Int
+  use option.Option
+  use list.List
+  use array.Array
+  use Enum.ArrayQuant
+  use Enum.ArrayInjection
+  use Enum.Fact
+  use Enum.Permutation
+  use inverse_in_place.InverseInPlace
+  use Properties
+
+  (* Enumerative testing tool *)
+  use SCheck.Test
+  use SCheck.SCheck
+  use SCheck.SCheck_runner
+
+
+  (** unit type *)
+
+  let function is_unit (x: unit) : bool =
+    match x with () -> False | _ -> True end
+
+  let is_unit_test = SCheck_runner.run_tests (
+    Test.make SCheck.unit is_unit)
+
+  (** int type *)
+
+  let wrong_abs_pos_test1 = SCheck_runner.run_tests (
+    Test.make SCheck.(int_range (-100000) 100000) wrong_abs_pos) (* counterexample found in s. *)
+
+  let wrong_abs_pos_test2 = SCheck_runner.run_tests (
+    Test.make SCheck.(int_range (-10) 10) wrong_abs_pos) (* counterexample found in ? s *)
+
+  (** option type *)
+
+  let function is_none (x: option 'a) : bool =
+    match x with
+    | None -> true 
+    | _ -> false
+    end
+
+  let is_none_test = SCheck_runner.run_tests (
+    Test.make
+      SCheck.(option SCheck.bool)
+      is_none
+  )
+
+  (** array type *)
+
+  let length_make (n: int) : bool
+  =
+    length (Array.make n 0) = n
+
+  let length_make_test = SCheck_runner.run_tests (
+    Test.make SCheck.(int_bound 10000) length_make)
+
+  (** Examples of ENUM properties *)
+
+  (* 1. The enumerator of factorial arrays is sound: *)
+
+  let b_fact_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(fact_of_size 6)
+        Fact.b_fact
+    )
+
+  (* 2. Some factorial arrays (of size 4) are not injective: *)
+
+  let is_inj_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(fact_of_size 4)
+        b_inj
+    )
+
+  (* The generator of permutation arrays is sound: *)
+
+  let function b_permut_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(permut_of_size 5)
+        b_permut
+      )
+
+  (** Test of properties of inverse_in_place *)
+
+  (* The function inverse_in_place preserves permutations *)
+
+  let function inverse_in_place_permut (a: array int) : bool
+  =
+    let newa = copy a in
+    inverse_in_place newa;
+    b_permut newa
+
+  let function inverse_in_place_permut_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(permut_of_size 6)
+        inverse_in_place_permut
+    )
+
+  (* The function inverse_in_place computes the inverse permutation. *)
+
+  (* Implementation of the postcondition
+       ensures  { forall i. 0 <= i < length a -> (old a)[a[i]] = i }
+  *)
+
+  let predicate inverse_values (a b: array int) (i: int) = a[b[i]] = i
+
+  predicate is_inverse_sub (a b: array int) (u: int) =
+    forall i. 0 <= i < u -> inverse_values a b i
+
+  predicate is_inverse (a b: array int) = is_inverse_sub a b (length a)
+
+  let function b_inverse (a b: array int) : bool
+    ensures { result <-> is_inverse a b }
+   = 
+    for i = 0 to a.length-1 do
+      invariant { 0 <= i <= a.length }
+      invariant { is_inverse_sub a b i }
+      if not (inverse_values a b i) then return false
+    done;
+    true
+
+  let function inverse_in_place_inverse (a: array int) : bool
+  =
+    let newa = copy a in
+    inverse_in_place newa;
+    (b_inverse a newa)
+
+  let function inverse_in_place_inverse_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(permut_of_size 6)
+        inverse_in_place_inverse
+      )
+
+end
+
+
+(* Separated modules to measure test duration *)
+
+module WrongAbsPos1
+
+  use int.Int
+  (* Modules with code or properties to test *)
+  use Properties
+  (* Enumerative testing tool *)
+  use SCheck.Test
+  use SCheck.SCheck
+  use SCheck.SCheck_runner
+
+  let wrong_abs_pos_test1 = SCheck_runner.run_tests (
+    Test.make SCheck.(int_range (-10000000) 10000000) wrong_abs_pos) (* counterexample found in more than 3 s. *)
+
+end
+
+
+module WrongAbsPos2
+
+  use int.Int
+  (* Modules with code or properties to test *)
+  use Properties
+  (* Enumerative testing tool *)
+  use SCheck.Test
+  use SCheck.SCheck
+  use SCheck.SCheck_runner
+
+  let wrong_abs_pos_test2 = SCheck_runner.run_tests (
+    Test.make SCheck.(int_bound 10000) wrong_abs_pos) (* counterexample found in less than 1s *)
+
+end
+
