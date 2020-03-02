@@ -1,0 +1,131 @@
+(********************************************************************)
+(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* FEMTO-ST institute                                               *)
+(********************************************************************)
+
+(********************************************************************)
+(*  This software is distributed under the terms of the GNU Lesser  *)
+(*  General Public License version 2.1                              *)
+(********************************************************************)
+
+(* TODO: Reduce the interface as much as possible, as in QCheck.mlw *)
+
+(** {Generic cursor for enumeration} *)
+module EnumState
+
+  type t 'a = {
+    item : 'a;
+    rk   : int;
+    new  : bool
+  }
+
+end
+
+
+(** {Memory-less side-effect free sized enumerators for WhyML types} *)
+
+module Gen (* Work in progress. TODO for a subsequent release *)
+
+  use int.Int
+  use bool.Bool
+  use option.Option
+  use EnumState
+  use array.Array
+
+  type gen 'a = {
+    create : int -> EnumState.t 'a;
+    has_next : EnumState.t 'a -> bool;
+    next : EnumState.t 'a -> EnumState.t 'a
+  }
+
+  val function unit : gen unit   (* Enumerator for unit type *)
+  val function bool : gen bool   (* Enumerator for Boolean type *)
+  val function int : gen int
+  val function option (g: gen 'a) : gen (option 'a)
+(*
+  val fact_size (size: int) : gen (array int)
+  val permut_size (size: int) : gen (array int)
+*)
+
+end
+
+
+module SCheck
+
+  use bool.Bool
+  use int.Int
+  use option.Option
+  use array.Array
+  use Gen
+
+  type serial 'a = {
+    generator : Gen.gen 'a;
+(*
+    print: 'a -> string;
+*)
+  }
+
+  val function unit : serial unit
+  val function bool : serial bool
+  val int_range (a b: int) : serial int
+  val int_bound (n: int) : serial int
+  val function option (a: serial 'a) : serial (option 'a)
+
+  val function fact_of_size (size: int) : serial {array int}
+  val function permut_of_size (size: int) : serial {array int}
+
+end
+
+
+module Test (** Test cases *)
+  use SCheck
+  use Gen
+  use int.Int
+  use ref.Ref
+  use option.Option
+
+  type cell 'a = {
+    series : serial 'a;
+    oracle : 'a -> bool;
+(*  name : string;
+    low : int;
+    high : int
+*)
+  }
+
+  val make (s: serial 'a) (o: 'a -> bool) : cell 'a
+
+end
+
+
+module TestResult (* Test result + specification of test execution function *)
+
+  use Test
+  use EnumState
+  use SCheck
+  use Gen
+  use int.Int
+  use ref.Ref
+  use option.Option
+
+  type verdict 'a  = { (* = counter_ex *)
+    test: cell 'a;
+    witness: option 'a; (* Some counterexample or None *)
+    rank: int;         (* number of tested data when some witness is found,
+                          of total number of tested data is no counterexample *)
+(*    prt: 'a -> S.string
+*)
+  }
+
+  val exhaust (t: Test.cell 'a) : verdict 'a
+
+end
+
+
+module SCheck_runner
+  use Test
+
+  val run_tests (l: Test.(cell 'a)) : int
+
+end
+
