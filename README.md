@@ -46,6 +46,19 @@ How to use this code?
 
 See [EG20, Sections 4 and 5] and the Makefile for the different possible actions.
 
+The command to test WhyML properties is
+
+	bash ./why3_check.sh TestFilePrefix ModuleName
+
+where TestFilePrefix is the prefix of the WhyML file TestFilePrefix.mlw containing 
+modules with test cases, and ModuleName is the name of the WhyML module in the file 
+TestFilePrefix.mlw containing the test cases you want to execute.
+
+WARNING: The testing process works well only if the file ModuleName.ml it generates 
+doesn't pre-exist in the folder. Therefore, it starts and ends with a command removing
+this file. Before running a test, make sure that there is no important file with this
+name in the folder.
+
 References
 ==========
 

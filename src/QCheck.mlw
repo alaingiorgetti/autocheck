@@ -8,8 +8,8 @@
 (*  General Public License version 2.1                              *)
 (********************************************************************)
 
-(* QCheck.mlw: Specification of random testing in WhyML, for extraction with 
-   Why3 and test execution with QCheck tool.
+(* QCheck.mlw: Specification of random testing in WhyML, for extraction in
+   OCaml with Why3 and test execution with QCheck tool.
 *)
 
 module RS (* = Random.State *)

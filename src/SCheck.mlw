@@ -24,7 +24,7 @@ end
 
 (** {Memory-less side-effect free sized enumerators for WhyML types} *)
 
-module Gen (* Work in progress. TODO for a subsequent release *)
+module Gen (* Work in progress. TODO: extend in a subsequent release *)
 
   use int.Int
   use bool.Bool

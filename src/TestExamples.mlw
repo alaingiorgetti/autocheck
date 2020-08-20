@@ -10,6 +10,8 @@
 
 (* TestExamples.mlw: Examples of random and enumerative tests of WhyML
    properties.
+
+   TODO: Fix issue with extraction of is_nil.
 *)
 
 (** Properties tested randomly and by enumeration *)
@@ -209,9 +211,14 @@ module RandomTests
   (** list type *)
 
   (* First example of test with a predefined 'let predicate' *)
+
+  (* Does not work due to the extraction of is_nil by drivers/ocaml64.drv in 
+     Why3 1.2.0. Works with Why3 1.3.0.
+
   let is_nil_test
   =
     QCheck_runner.run_tests (Test.make QCheck.(list QCheck.bool) is_nil)
+  *)
 
   (** Test of a wrong mutation
         lemma Length_nonnegative': forall l: list 'a. length l > 0

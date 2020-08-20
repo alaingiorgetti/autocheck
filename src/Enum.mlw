@@ -1,0 +1,1256 @@
+(***************************************************************************)
+(* Copyright (C) 2020 Clotilde Erard and Alain Giorgetti                   *)
+(* FEMTO-ST institute                                                      *)
+(***************************************************************************)
+
+(***************************************************************************)
+(*  This software is distributed under the terms of the GNU Lesser         *)
+(*  General Public License version 2.1                                     *)
+(***************************************************************************)
+
+
+(* Allmost all the WhyML code of ENUM 1.2.0 in a single file.
+
+   Exceptions are:
+   - modules Test and some modules *Sound in generator/**/*.mlw.
+   Differences are:
+   - module Enum in Xxx.mlw is renamed XxxEnum.
+   - lex.Lex -> Lex
+   - listExtension.ToArray -> ToArray
+   - arrayExtension.Array -> Array
+   - Lexgen.Cursor -> Cursor
+   - lexgen.LexXX -> LexXX
+   - lexgen.SmallCheck -> SmallCheck
+   - Endo.Endo -> Endo
+   - Endo.Enum -> EndoEuum
+*)
+
+(* From arrayExtension.mlw: *)
+
+(* Extensions of stdlib/array.mlw *)
+
+module Array
+
+  use int.Int
+  use array.Array
+
+  let copy (a b: array int) : unit
+    requires { b.length = a.length }
+    ensures  { forall i. 0 <= i < a.length -> b[i] = a[i] }
+  =
+    for i = 0 to a.length-1 do
+      invariant { forall j. 0 <= j < i -> b[j] = a[j] }
+      b[i] <- a[i]
+    done
+
+end
+
+(** Restriction of map.MapInjection to arrays. *)
+
+theory ArrayInjection
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use map.MapInjection as M
+  use map.Occ
+
+  predicate injective (a: array int) = M.injective a.elts a.length
+  predicate surjective (a: array int) = M.surjective a.elts a.length
+  predicate range (a: array int) = M.range a.elts a.length
+
+  lemma injective_surjective: forall a: array int.
+    injective a -> range a -> surjective a
+
+  lemma injection_occ: forall a: array int.
+    injective a <-> forall v:int. (occ v a.elts 0 a.length <= 1)
+
+  lemma endoinjection_occ: [@split_all_full] forall a: array int. 
+    M.range (a.elts) a.length /\ injective a
+    -> forall v:int. 0 <= v < a.length
+    -> occ v a.elts 0 a.length = 1
+
+  let predicate in_interval (x l u: int) = l <= x < u
+
+  (* The following two predicates could be generalized to maps and added to 
+     module MapInjection in stdlib/map.mlw. *)
+  predicate range_sub (a: array int) (l u b: int) = forall i: int.
+    l <= i < u -> in_interval a[i] 0 b
+
+  predicate inj_sub (a: array int) (l u: int) = forall i: int.
+    l <= i < u -> forall j: int. l <= j < u -> i <> j -> a.elts i <> a.elts j
+
+  (* The following predicates and Boolean functions 
+     are used for BET in generator/permutation/Permutation.mlw *) 
+  predicate diff_sub (a: array int) (i: int) (u: int) =
+    forall j: int. 0 <= j < u -> i <> j -> a[i] <> a[j]
+
+  predicate diff (a: array int) (i: int) =
+    forall j: int. 0 <= j < a.length -> i <> j -> a[i] <> a[j]
+
+  let function b_diff (a: array int) (i: int) : bool
+    requires { 0 <= i < a.length }
+    ensures { result <-> diff a i }
+  =
+    let n = a.length in
+    for j = 0 to n - 1 do
+      invariant { diff_sub a i j }
+      if (a[j] = a[i] && j <> i) then return false
+    done;
+    true
+
+  predicate inj_sub2 (a: array int) (u: int) =
+    forall i: int. 0 <= i < u -> diff a i
+
+  let function b_inj (a: array int) : bool
+    ensures { result <-> injective a }
+  =
+    let n = a.length in
+    for j = 0 to n - 1 do
+      invariant { inj_sub2 a j }
+      if not (b_diff a j) then return false
+    done;
+    true
+
+  let function b_range (a: array int) : bool
+    ensures { result <-> range a }
+  =
+    let n = a.length in
+    for j = 0 to n - 1 do
+      invariant { range_sub a 0 j n }
+      if not (in_interval a[j] 0 n) then return false
+    done;
+    true
+
+end
+
+
+module ToList
+
+  use int.Int
+  use array.Array
+  use array.ArrayEq
+  use list.List
+
+
+  let rec to_list_sub (a: array 'a) (l u: int) : list 'a
+    requires { 0 <= l <= u <= a.length }
+    variant  { u - l }
+  = if u <= l then Nil else Cons a[l] (to_list_sub a (l+1) u)
+
+  let to_list (a: array 'a) : list 'a = to_list_sub a 0 a.length
+
+end
+
+
+module Cte
+
+  use int.Int
+  use array.Array
+
+  predicate cte_sub (a: array int) (l u b: int) =
+    forall i:int. l <= i < u -> a[i] = b
+
+  predicate cte (a: array int) (b: int) = cte_sub a 0 a.length b
+
+end
+
+
+module Id
+
+  use int.Int
+  use array.Array
+
+  predicate is_id_sub (a: array int) (l u: int) =
+    forall i:int. l <= i < u -> a[i] = i
+
+  predicate is_id (a: array int) = is_id_sub a 0 a.length
+
+end
+
+
+module Inc
+
+  use int.Int
+  use array.Array
+
+  predicate is_inc_sub (a: array int) (l u: int) =
+    forall i j:int. l <= i < j < u -> a[i] < a[j]
+
+  predicate is_inc (a: array int) = is_inc_sub a 0 a.length
+
+  let function b_inc (a: array int) : bool
+    ensures { result <-> is_inc a }
+  =
+    let n = a.length in
+    for i = 1 to n-1 do
+      invariant { is_inc_sub a 0 i }
+      if not (a[i-1] < a[i]) then return false
+    done;
+    true
+
+end
+
+
+module Dec
+
+  use int.Int
+  use array.Array
+
+  predicate is_dec_sub (a: array int) (l u:int) =
+    forall i j:int. l <= i < j < u -> a[j] < a[i]
+
+  predicate is_dec (a: array int) = is_dec_sub a 0 a.length
+
+end
+
+
+(* From Lex.mlw: *)
+
+(** Lexicographic order *)
+
+module Lex
+
+  use int.Int
+  use array.Array
+  use array.ArrayEq
+
+  (** * Equality of initial sub-arrays a1[0..u-1] and a2[0..u-1] *)
+
+  predicate eq_prefix (a1 a2: array int) (u: int) = array_eq_sub a1 a2 0 u
+
+  (** * Lexicographic order on arrays of integers *)
+
+  (** ** Strict order *)
+
+  predicate lt_lex_sub_at (a1 a2:array int) (l u:int) (i:int) = l <= i < u
+    /\ array_eq_sub a1 a2 l i /\ a1[i] < a2[i]
+
+  predicate lt_lex_at (a1 a2: array int) (i:int) = a1.length = a2.length
+    /\ lt_lex_sub_at a1 a2 0 a1.length i
+
+  predicate lt_lex_sub (a1 a2: array int) (l u: int) = exists i:int.
+    lt_lex_sub_at a1 a2 l u i
+
+  predicate lt_lex (a1 a2: array int) = a1.length = a2.length
+    /\ lt_lex_sub a1 a2 0 a1.length
+
+  predicate le_lex_sub (a1 a2: array int) (l u: int) = lt_lex_sub a1 a2 l u
+    \/ array_eq_sub a1 a2 l u
+
+  predicate le_lex (a1 a2: array int) = a1.length = a2.length /\ le_lex_sub a1 a2 0 a1.length
+
+  (* For the generator of permutations: *)
+  lemma prefix_le_lex_sub: forall a b:array int, l u:int.
+    eq_prefix a b l /\ le_lex_sub a b l u -> le_lex_sub a b 0 u
+
+  let rec lemma not_array_eq_sub (a b: array int) (l u: int) : unit
+    requires { 0 <= l < u <= a.length = b.length }
+    requires { not (array_eq_sub a b l u) }
+    variant  { u - l }
+    ensures  { exists i:int. l <= i < u /\ array_eq_sub a b l i /\ a[i] <> b[i] }
+  =
+    if a[l] = b[l] then not_array_eq_sub a b (l+1) u
+
+  lemma total_order: forall a b: array int, l u: int.
+     0 <= l < u <= a.length = b.length /\ not (lt_lex_sub b a l u)
+     -> le_lex_sub a b l u
+
+end
+
+(* From listExtension.mlw: *)
+
+(* Extensions of stdlib/list.mlw *)
+
+module ToArray
+  use int.Int
+  use array.Array
+  use list.List
+  use list.Length as L
+
+   let rec to_array_rec (l: list int) (a: array int) : unit
+    requires { L.length l <= a.length }
+    variant { L.length l }
+  =
+    match l with
+    | Nil -> ()
+    | Cons y m -> a[a.length - L.length l] <- y; to_array_rec m a
+    end
+
+  let to_array (l: list int) : array int
+  =
+    let a = make (L.length l) 0 in
+    to_array_rec l a;
+    a
+
+end
+
+
+module ListLengthExtension
+
+  use int.Int
+  use list.List
+  use list.Length
+
+   (* Two lemmas for Coq proofs of lemmas in subsequent modules. *)
+
+  lemma Length_cons : forall x:'a, l:list 'a. length (Cons x l) = 1 + length l
+  lemma Length_cons_pos:  forall x:'a, l:list 'a. length (Cons x l) > 0
+  
+end
+
+
+module ListExtension
+
+  use int.Int
+  use ref.Ref
+  use list.List
+  use list.Length
+  use list.Append
+  use list.NthNoOpt
+  use ListLengthExtension
+
+  (* For shorter Coq proofs. Proved with Alt-Ergo. *)
+  lemma Length_not_nil: forall l: list 'a. length l > 0 <-> l <> Nil
+
+  predicate is_blist (l:list int) (b:int) = forall i:int.
+    0 <= i < length l -> 0 <= nth i l < b
+
+  (* (is_ipj l i) holds iff l is [i; i+1; ...] *)
+  predicate is_ipj (l:list int) (i: int) = forall j:int.
+    0 <= j < length l -> nth j l = i + j
+
+  (* (is_id l) holds iff l is [0; 1; ...; n-1] with n = length l. *)
+  predicate is_id (l:list int) = forall i:int.
+    0 <= i < length l -> nth i l = i
+
+  (* (id_aux n i) is the list [i; i+1; ...; n-1] *)
+  let rec id_aux (n i: int) : list int
+    requires { 0 <= n }
+    ensures  { length result = n }
+    ensures  { is_ipj result i }
+    variant  { n }
+  =
+    if n <= 0 then Nil else Cons i (id_aux (n-1) (i+1))
+
+  (* (id n) is the list [0; 1; ...; n-1] *)
+  let id (n: int) : list int
+    requires { 0 <= n }
+    ensures  { length result = n }
+    ensures  { is_id result }
+  =
+    id_aux n 0
+
+  let rec rm_nth (x:int) (l:ref (list int)) : int
+    requires { 0 <= x < length !l }
+    ensures  { result = nth x (old !l) }
+    ensures  { forall i. 0 <= i < x -> nth i !l = nth i (old !l) }
+    ensures  { forall i. x <= i < length !l -> nth i !l = nth (i+1) (old !l) }
+    ensures  { length !l = length (old !l) - 1 }
+    variant  { length !l }
+  =
+    match (!l) with
+    | Nil -> l := Nil; 0
+    | Cons y m ->
+        if x = 0 then begin
+          l := m; y
+        end else begin
+          let r = ref m in
+          let z = rm_nth (x-1) r in
+          l := Cons y !r;
+          z
+        end
+    end
+
+end
+
+(* From mapExtension.mlw: *)
+
+
+(* Extensions of stdlib/map.mlw *)
+
+module MapExtension
+
+  use int.Int
+  use map.Map
+  use map.Occ
+  use map.MapPermut
+
+(* Pb: Automated provers do not instantiate correctly this lemma from map.mlw:
+  lemma occ_append:
+    forall v: 'a, m: map int 'a, l mid u: int.
+    l <= mid <= u -> occ v m l u = occ v m l mid + occ v m mid u
+    (* by induction on u *)
+*)
+
+  (* Instance of Lemma occ_append to help the automated provers.
+     Easily proved by Alt-Ergo, Z3 and CVC4. *)
+  lemma occ_append_instance:
+    forall v: 'a, m: map int 'a, mid u: int.
+    0 <= mid <= u -> occ v m 0 u = occ v m 0 mid + occ v m mid u
+
+  lemma permut_split: forall a b: map int 'a, l i u: int.
+    l <= i < u -> permut a b l u -> permut a b l i
+    -> permut a b i u
+
+end
+
+(* From generator/lexgen.mlw: *)
+
+module Cursor
+
+  use int.Int
+  use array.Array
+
+  type cursor = {
+        current: array int; (* current array *)
+    mutable new: bool;      (* true iff current is a new array *)
+  }
+
+end
+
+(** {1 Refinement of lexicographic order} *)
+
+module LexXX
+
+  use int.Int
+  use array.Array
+  use export Lex
+  use Cursor
+
+  predicate is_XX (a: array int)
+
+  (* a is the smallest XX in lexicographic order *)
+  predicate min_lex (a: array int) = forall b: array int.
+    a.length = b.length /\ is_XX b -> le_lex_sub a b 0 a.length
+
+  (* a is the largest XX in lexicographic order *)
+  predicate max_lex (a: array int) = forall b: array int.
+    a.length = b.length /\ is_XX b -> le_lex_sub b a 0 a.length
+
+  (* (inc a1 a2) holds iff a2 is the smallest array larger than a1 *)
+  predicate inc (a1 a2: array int) = a1.length = a2.length /\
+    lt_lex_sub a1 a2 0 a1.length /\ forall a3: array int. a3.length = a1.length /\
+    is_XX a3 /\ lt_lex_sub a1 a3 0 a1.length
+    -> le_lex_sub a2 a3 0 a1.length
+
+  predicate sound (c: cursor) = is_XX c.current
+
+end
+
+
+(** Refinement of lexicographic order with an integer parameter *)
+
+module LexIntXX
+
+  use int.Int
+  use array.Array
+  use export Lex
+  use Cursor
+
+  predicate is_XX (a: array int) (k: int)
+
+  (* a is the smallest XX in lexicographic order *)
+  predicate min_lex (a: array int) (k: int) = forall b: array int.
+    a.length = b.length /\ is_XX b k -> le_lex_sub a b 0 a.length
+
+  (* a is the largest XX in lexicographic order *)
+  predicate max_lex (a: array int) (k: int) = forall b: array int.
+    a.length = b.length /\ is_XX b k -> le_lex_sub b a 0 a.length
+
+  (* (inc a1 a2) holds iff a2 is the smallest array larger than a1 *)
+  predicate inc (a1 a2: array int) (k: int) = a1.length = a2.length /\
+    is_XX a1 k /\ is_XX a2 k /\
+    lt_lex_sub a1 a2 0 a1.length /\ forall a3: array int. a3.length = a1.length /\
+    is_XX a3 k /\ lt_lex_sub a1 a3 0 a1.length
+    -> le_lex_sub a2 a3 0 a1.length
+
+  predicate sound (c: cursor) (k: int) = is_XX c.current k
+
+end
+
+(** {2 Generic definition of a lexicographic small step generator}
+
+   With a generic function small_check for BET.
+
+*)
+
+module SmallCheck
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use export Lex
+  use array.ToList
+  use list.List
+  use list.Length as L
+  use Cursor
+  use export ToArray
+
+  predicate is_XXX (a: array int)
+
+  clone export LexXX with
+    predicate is_XX = is_XXX
+
+  val create_cursor (n: int) : cursor
+    requires { n >= 0 }
+    ensures  { result.new -> sound result }
+  val next (c: cursor) : unit
+    requires { sound c }
+    ensures  { c.new -> sound c }
+
+  (* Type for BET output *)
+  type verdict = {
+    witness: list int; (* counterexample or Nil if none *)
+    rank: int;         (* number of tested data when witness is found,
+                          of total number of tested data is no counterexample *)
+  }
+
+  let small_check (oracle: list int -> bool) (n: int) : verdict
+    requires { n >= 0 }
+    diverges
+  =
+    let c = create_cursor n in
+    let ref r = 0 in
+    let ref ce = Nil in
+    while c.new do
+      invariant { c.new -> sound c }
+      r := r+1;
+      let a = c.current in
+      let l = to_list a 0 a.length in
+      if oracle l then
+        next c
+      else begin
+        ce := l;
+        c.new <- false
+      end
+    done;
+    { witness = ce; rank = r }
+
+end
+
+
+(** {BET with an additional integer parameter} *)
+
+module SmallCheckInt
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use export Lex
+  use array.ToList
+  use list.List
+  use list.Length as L
+  use Cursor
+  use export ToArray
+
+  predicate is_XXX (a: array int) (k: int)
+
+  clone export LexIntXX with
+    predicate is_XX = is_XXX
+
+  val create_cursor (n: int) (k: int) : cursor
+    requires { n >= 0 }
+    ensures { result.new -> sound result k }
+  val next (c: cursor) (k: int) : unit
+    requires { sound c k }
+    ensures  { c.new -> sound c k }
+
+  (* Type for BET output *)
+  type verdict = {
+    witness: list int; (* counterexample or Nil if none *)
+    rank: int;         (* number of tested data when witness is found,
+                          of total number of tested data is no counterexample *)
+  }
+
+  let small_check_int (oracle: list int -> int -> bool) (n k: int) : verdict
+    requires { n >= 0 }
+    diverges
+  =
+    let c = create_cursor n k in
+    let ref r = 0 in
+    let ref ce = Nil in
+    while c.new do
+      invariant { c.new -> sound c k }
+      r := r+1;
+      let a = c.current in
+      let l = to_list a 0 a.length in
+      if oracle l k then
+        next c k
+      else begin
+        ce := l;
+        c.new <- false
+      end
+    done;
+    { witness = ce; rank = r }
+
+end
+
+(** {2 Generic definition of a lexicographic small step generator by filtering}
+*)
+
+module Filter
+
+  use int.Int
+  use array.Array
+  use Array as A (* for copy *)
+  use Lex
+  use Cursor
+
+  predicate is_X (a: array int)
+  predicate is_Y (a: array int)
+  predicate is_Z (a: array int) = is_X a /\ is_Y a
+
+  val b_Y (a: array int) : bool
+    ensures { result <-> is_Y a }
+
+  clone LexXX as LX with
+    predicate is_XX = is_X  (* LX.min_lex, LX.max_lex, LX.inc and LX.sound for is_X *)
+
+  clone LexXX as LZ with
+    predicate is_XX = is_Z  (* LZ.min_lex, LZ.max_lex, LZ.inc and LZ.sound for is_Z *)
+
+  val create_cursor_X (n: int) : cursor
+    requires { n >= 0 }
+    ensures  { result.new -> LX.sound result }
+    ensures  { result.new -> LX.min_lex result.current }
+
+  val next_X (c: cursor) : unit
+    requires { LX.sound c }
+    ensures  { c.new -> LX.sound c }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> LX.inc (old c.current) c.current }
+    ensures  { not c.new -> LX.max_lex (old c.current) }
+
+  let create_cursor (n: int) : cursor
+    diverges
+    requires { n >= 0 }
+    ensures  { result.new -> LZ.sound result }
+    ensures  { result.new -> LZ.min_lex result.current }
+  =
+    let c = create_cursor_X n in
+    while c.new && not (b_Y c.current) do
+      next_X c
+    done;
+    c
+
+  let next (c: cursor) : unit
+    diverges
+    requires { c.new }
+    requires { LZ.sound c }
+    ensures  { c.new -> LZ.sound c }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> LZ.inc (old c.current) c.current }
+    ensures  { not c.new -> LZ.max_lex (old c.current) }
+  =
+    let a = make c.current.length 0 in    (* a may be the last array satisfying is_Z *)
+    A.copy c.current a;
+    if c.new then next_X c;
+    while c.new && not (b_Y c.current) do
+      next_X c
+    done;
+    (* Here, there is no new X array, or none of the new X arrays satisfies is_Z. *)
+    if not (b_Y c.current) then begin (* a was really the last array satisfying is_Z *)
+      A.copy a c.current;  (* a is restored in c *)
+      c.new <- false       (* and is marked as not new, i.e. already visited *)
+    end;
+
+end
+
+
+module FilterInt
+
+  use int.Int
+  use array.Array
+  use Array as A (* for copy *)
+  use Lex
+  use Cursor
+
+  predicate is_X (a: array int) (k: int)
+  predicate is_Y (a: array int) (k: int)
+  predicate is_Z (a: array int) (k: int) = is_X a k /\ is_Y a k
+
+  val b_Y (a: array int) (k: int) : bool
+    ensures { result <-> is_Y a k }
+
+  clone LexIntXX as LX with
+    predicate is_XX = is_X  (* LX.min_lex, LX.max_lex, LX.inc and LX.sound for is_X *)
+
+  clone LexIntXX as LZ with
+    predicate is_XX = is_Z  (* LZ.min_lex, LZ.max_lex, LZ.inc and LZ.sound for is_Z *)
+
+  val create_cursor_X (n k: int) : cursor
+    requires { n >= 0 }
+    ensures  { result.new -> LX.sound result k }
+    ensures  { result.new -> LX.min_lex result.current k }
+
+  val next_X (c: cursor) (k: int) : unit
+    requires { LX.sound c k }
+    ensures  { c.new -> LX.sound c k }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> LX.inc (old c.current) c.current k }
+    ensures  { not c.new -> LX.max_lex (old c.current) k }
+
+  let create_cursor (n k: int): cursor
+    diverges
+    requires { n >= 0 }
+    ensures  { result.new -> LZ.sound result k }
+    ensures  { result.new -> LZ.min_lex result.current k }
+  =
+    let c = create_cursor_X n k in
+    while c.new && not (b_Y c.current k) do
+      next_X c k
+    done;
+    c
+
+  let next (c: cursor) (k: int) : unit
+    diverges
+    requires { c.new }
+    requires { LZ.sound c k }
+    ensures  { c.new -> LZ.sound c k }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> LZ.inc (old c.current) c.current k }
+    ensures  { not c.new -> LZ.max_lex (old c.current) k }
+  =
+    let a = make c.current.length 0 in    (* a may be the last array satisfying is_Z *)
+    A.copy c.current a;
+    if c.new then next_X c k;
+    while c.new && not (b_Y c.current k) do
+      next_X c k
+    done;
+    (* Here, there is no new X array, or none of the new X arrays satisfies is_Z. *)
+    if not (b_Y c.current k) then begin (* a was really the last array satisfying is_Z *)
+      A.copy a c.current;  (* a is restored in c *)
+      c.new <- false       (* and is marked as not new, i.e. already visited *)
+    end;
+
+end
+
+(* From generator/barray/Barray.mlw: *)
+
+(* From generator/endo/Endo.mlw: *)
+
+module Endo
+
+  use int.Int
+  use array.Array
+
+  predicate is_endo_sub (a:array int) (l u:int) = forall i:int.
+    l <= i < u -> 0 <= a[i] < a.length
+
+  predicate is_endo (a:array int) = is_endo_sub a 0 a.length
+  
+  let function b_endo (a: array int) : bool
+   ensures { result <-> is_endo a }
+  =
+    let n = a.length in
+    for i = 0 to n - 1 do
+      invariant { is_endo_sub a 0 i }
+      if not (0 <= a[i] < a.length) then return false
+    done;
+    true
+
+end
+
+
+module EndoEnum
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use array.ArrayEq
+  use Cte
+  use Endo
+  use Cursor
+
+  clone LexXX with
+    predicate is_XX = is_endo
+
+  let create_cursor (n: int) : cursor
+    requires { n >= 0 }
+    ensures  { sound result }
+    ensures  { min_lex result.current }
+    ensures  { length result.current = n }
+  = 
+    let a = make n 0 in
+    { current = a; new = true }
+
+  let next (c: cursor) : unit
+    requires { sound c }
+    ensures  { sound c }
+    ensures  { c.current.length = (old c).current.length }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> inc (old c.current) c.current }
+    ensures  { not c.new -> array_eq (old c.current) c.current }
+    ensures  { not c.new -> max_lex c.current }
+  =
+    let a = c.current in
+    let n = a.length in
+    label L in
+    let ref r = (n-1) in
+    while r >= 0 && a[r] = n-1 do
+      invariant { -1 <= r <= n-1 }
+      invariant { cte_sub a (r+1) n (n-1) }
+      variant   { r + 1 }
+      r := r - 1
+    done;
+    if (r < 0) then (* Last array reached. *)
+      c.new <- false
+    else begin
+      a[r] <- a[r] + 1;
+      for i = r+1 to n-1 do
+        invariant { r+1 <= i <= n }
+        invariant { (a at L)[r]+1 = a[r] }
+        invariant { cte_sub a (r+1) i 0 }
+        invariant { lt_lex_at (a at L) a r }
+        a[i] <- 0
+      done;
+      c.new <- true
+    end
+
+end
+
+
+(* From generator/fact/Fact.mlw: *)
+
+module Fact
+
+  use int.Int
+  use array.Array
+
+  predicate is_fact_sub (a:array int) (l u:int) = 
+    forall i:int. l <= i < u -> 0 <= a[i] <= i
+
+  predicate is_fact (a:array int) = is_fact_sub a 0 a.length
+
+  let function b_fact (a: array int) : bool
+    ensures { result <-> is_fact a }
+  =
+    let n = a.length in
+    for i = 0 to n - 1 do
+      invariant { is_fact_sub a 0 i }
+      if not (0 <= a[i] <= i) then return false
+    done;
+    true
+
+end
+
+
+module FactEnum
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+   use array.ArrayEq
+  use Cte
+  use Id
+  use Fact
+  use Cursor
+
+  clone export LexXX with
+    predicate is_XX = is_fact
+
+  let create_cursor (n: int) : cursor
+    requires { n >= 0 }
+    ensures  { length result.current = n }
+    ensures  { sound result }
+    ensures  { min_lex result.current }
+  = 
+    let a = make n 0 in
+    { current = a; new = true }
+
+  let next (c: cursor) : unit
+    requires { sound c }
+    ensures  { sound c }
+    ensures  { c.current.length = (old c).current.length }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> inc (old c.current) c.current }
+    ensures  { not c.new -> array_eq (old c.current) c.current }
+    ensures  { not c.new -> max_lex c.current }
+  =
+    let a = c.current in
+    let n = a.length in
+    label L in
+    let ref r = n-1 in
+    while r >= 0 && a[r] = r do
+      invariant { -1 <= r <= n-1 }
+      invariant { is_id_sub a (r+1) n }
+      variant   { r + 1 }
+      r := r - 1
+    done; 
+    if (r < 0) then (* Last array reached. *)
+      c.new <- false
+    else begin
+      a[r] <- a[r] + 1;
+      for i = r+1 to n-1 do
+        invariant { r+1 <= i <= n }
+        invariant { (a at L)[r]+1 = a[r] }
+        invariant { cte_sub a (r+1) i 0 }
+        invariant { lt_lex_at (a at L) a r }
+        a[i] <- 0
+      done;
+      c.new <- true
+    end
+    
+end
+
+
+module FactSound
+
+  use int.Int
+  use array.Array
+  use list.List
+  use array.ToList
+  use Fact
+  use FactEnum
+
+  clone SmallCheck with
+    predicate is_XXX = is_fact,
+    val create_cursor = create_cursor,
+    val next = next
+    
+  lemma b_is_fact_sound: forall a: array int. is_fact a -> b_fact a = true
+
+  (* Bounded-exhaustive test of the lemma before proving it: *)
+  let test_b_fact () : verdict
+    diverges
+  =
+    let n = 5 in
+    small_check (fun l -> b_fact (to_array l)) n
+
+end
+
+
+module FactEndo
+
+  use Endo
+  use EndoEnum as E
+  use Fact
+
+  clone export Filter with
+    predicate is_X = is_endo,
+    predicate is_Y = is_fact,
+    val b_Y = b_fact,
+    val create_cursor_X = E.create_cursor,
+    val next_X = E.next
+
+end
+
+
+module FilterDemo
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use list.List
+  use array.ToList
+  use FactEndo
+  use Cursor
+
+  let run ()
+    diverges
+  =
+    let n = 3 in
+    let c = create_cursor n in
+    let ref l = Nil in
+    if c.new then
+      while c.new do
+        invariant { c.new -> LZ.sound c }
+        let f = c.current in
+        let g = to_list f 0 f.length in
+        l := Cons g l;
+        next c
+      done;
+    l
+
+end
+
+(* From generator/filtering/Filtering.mlw: *)
+
+(* From generator/permutation/Permutation.mlw: *)
+
+module Permutation
+
+  use int.Int
+  use array.Array
+  use array.ArrayPermut
+  use ArrayInjection
+  use export Inc
+  use export Dec
+  use Lex
+
+  predicate is_permut (a:array int) = range a /\ injective a
+
+  let function b_permut (a:array int) : bool
+    ensures { result <-> is_permut a }
+  = 
+    b_range a && b_inj a
+
+  lemma endoinj_permut: forall a b: array int.
+    0 <= a.length = b.length /\ is_permut a /\ is_permut b
+    -> permut a b 0 a.length
+
+  (* These two predicates specify that a[k] is the smallest value bigger than a[r] in
+     the array a[r+1..a.length-1]: *)
+  predicate im_sup1 (a: array int) (r k:int) = forall i:int. r < i < k -> a[k] < a[i]
+  predicate im_sup2 (a: array int) (r k:int) = forall i:int. k < i < a.length -> a[i] < a[r]
+
+  lemma min_lex_sub: forall a: array int, l u: int.
+    0 <= l < u <= a.length /\ injective a /\ is_inc_sub a l u
+    -> forall b:array int. permut a b l u /\ injective b
+    -> le_lex_sub a b l u
+
+  lemma max_lex_sub: forall a: array int, l u: int.
+    0 <= l < u <= a.length /\ injective a /\ is_dec_sub a l u
+    -> forall b:array int. permut a b l u /\ injective b
+    -> le_lex_sub b a l u
+
+end
+
+
+module PermutationEnum
+
+  use int.Int
+  use ref.Ref
+  use array.Array
+  use array.ArraySwap
+  use array.ArrayExchange
+  use array.ArrayPermut
+  use array.ArrayEq
+  use MapExtension
+  use Id
+  use Permutation
+  use Cursor
+
+  clone LexXX with
+    predicate is_XX = is_permut
+
+  let create_cursor (n: int) : cursor
+    requires { n >= 0 }
+    ensures  { result.new && sound result }
+    ensures  { min_lex result.current }
+    ensures  { result.current.length = n }
+  = 
+    let a = make n 0 in
+    for i = 0 to n-1 do
+      invariant { 0 <= i <= n }
+      invariant { is_id_sub a 0 i }
+      a[i] <- i
+    done;
+    assert { is_id a };
+    { current = a; new = true }
+
+  (* This lemma splits the predicate is_inc_sub to prove the last 
+     postcondition of reverse. *)
+  lemma split_inc_sub: forall a: array int, l m u:int.
+     0 <= l <= m < u <= a.length
+     /\ is_inc_sub a l (m+1) /\ is_inc_sub a m u -> is_inc_sub a l u
+
+  (* reverse function for next *)
+  let reverse (a: array int) (l u: int) : unit
+    requires { 0 <= l < u <= a.length }
+    requires { is_permut a }
+    requires { is_dec_sub a l u }
+    ensures  { is_permut a }
+    ensures  { permut_sub (old a) a l u }
+    ensures  { is_inc_sub a l u }
+  =
+    let ref x = l in
+    let ref y = (u-1) in
+    label L in
+    while x < y do
+      invariant { l <= x < u }
+      invariant { l <= y < u }
+      invariant { is_permut a }
+      invariant { permut_sub (a at L) a l u }
+      invariant { is_inc_sub a l (x+1) }
+      invariant { is_inc_sub a y u }
+      invariant { array_eq_sub (a at L) a x (y+1) }
+      variant   { y }
+      swap a x y;
+      assert { is_permut a }; (* speed up proof *)
+      y := y - 1;
+      x := x + 1
+    done
+
+  (* The following lemmas are proved with SMT solvers and used as axioms in Coq: *)
+
+  (* split permut *)
+  lemma is_permut_split: forall a b: array int, l: int.
+    0 <= l < a.length = b.length /\ is_permut a /\ is_permut b
+    /\ permut a b 0 a.length /\ permut a b 0 l -> permut a b l a.length
+
+  lemma is_permut_split_imply_permut_sub: forall a b: array int, l: int.
+    0 <= l < a.length = b.length /\ is_permut a /\ is_permut b
+    /\ permut a b 0 a.length /\ array_eq_sub a b 0 l -> permut_sub a b l a.length
+
+  (* array_eq_sub implies permut in the same interval *)
+  lemma array_eq_imply_permut: forall a b:array int, l u:int.
+    0 <= l < u <= a.length = b.length
+    /\ array_eq_sub a b l u -> permut a b l u
+
+  (* permut and permut_sub are symmetric *)
+  lemma permut_sym: forall a b:array int, l u: int.
+    permut a b l u <-> permut b a l u
+
+  lemma permut_sub_sym: forall a b:array int, l u: int.
+    permut_sub a b l u <-> permut_sub b a l u
+
+  lemma array_eq_sub_sym: forall a b: array int, l u: int.
+    array_eq_sub a b l u <->  array_eq_sub b a l u
+
+  (* permut is transitive *)
+  lemma permut_trans: forall a1 a2 a3 : array int. forall l u : int.
+    permut a1 a2 l u -> permut a2 a3 l u -> permut a1 a3 l u
+
+  lemma permut_sub_trans: forall a1 a2 a3 : array int. forall l u : int.
+    permut_sub a1 a2 l u -> permut_sub a2 a3 l u -> permut_sub a1 a3 l u
+
+  (* array_eq_sub is transitive *)
+  lemma array_eq_sub_trans: forall a1 a2 a3 : array int. forall l u : int.
+    array_eq_sub a1 a2 l u -> array_eq_sub a2 a3 l u -> array_eq_sub a1 a3 l u
+
+  (* Condition to find value b[l] on large or strict suffix if 
+     (permut_sub a b l u) holds: *)
+  lemma value_on_large_suffix: forall a b: array int, l u: int.
+    0 <= l < u <= a.length = b.length /\ permut_sub a b l u
+    -> exists i:int. l <= i < u /\ b[l] = a[i]
+
+  lemma value_on_strict_suffix: forall a b: array int, l u: int.
+    0 <= l < u <= a.length = b.length /\ permut_sub a b l u /\ lt_lex_sub_at a b l u l
+    -> exists i:int. l < i < u /\ b[l] = a[i]
+
+  lemma inc_permut: forall a b: array int, r j:int.
+    0 <= r < j < a.length = b.length /\ is_permut a /\ is_dec_sub a (r+1) a.length /\
+    is_permut b /\ is_inc_sub b (r+1) a.length /\
+    lt_lex_at a b r /\ permut_sub a b r a.length /\
+    im_sup1 a r j /\ im_sup2 a r j /\ b[r] = a[j]
+    -> inc a b
+
+  let next (c: cursor) : unit
+    requires { sound c }
+    ensures  { sound c }
+    ensures  { not c.new -> array_eq (old c.current) c.current }
+    ensures  { not c.new -> max_lex c.current }
+    ensures  { c.new -> lt_lex (old c.current) c.current }
+    ensures  { c.new -> inc (old c.current) c.current }
+  =
+    let a = c.current in
+    let n = a.length in
+    label L in
+    if n <= 1 then
+      c.new <- false
+    else
+      let ref r = (n-2) in (* 1. find the rightmost index r s.t. a[r] < a[r+1]: *)
+      while r >= 0 && a[r] > a[r+1] do
+        invariant { -1 <= r <= n-2 }
+        invariant { is_dec_sub a (r+1) n }
+        variant   { r + 1 }
+        r := r - 1
+      done;
+      if r < 0 then (* last array reached. *)
+        c.new <- false
+      else (* 2. Find rightmost (i.e. smallest) element a[j] greater than a[r]: *)
+        let ref j = (n-1) in
+        while a[r] > a[j] do
+          invariant { r + 1 <= j <= n-1 }
+          invariant { im_sup2 a r j }
+          variant   { j }
+          j := j - 1
+        done;
+        swap a r j; (* 3. swap *)
+        reverse a (r+1) n; (* 4. reverse suffix *)
+        assert { lt_lex_at (a at L) a r };
+        c.new <- true
+
+end
+
+(* From/generator/rgf/Rgf.mlw: *)
+
+(* From generator/sorted/Sorted.mlw: *)
+
+(* From generator/surj/Surj.mlw: *)
+
+
+(* Supplementary code (should come from some release of ENUM > 1.2.0): *)
+
+(** Quantifiers on sub-arrays *)
+
+(* Should be added to stdlib/array.mlw *)
+module ArrayQuant
+  use int.Int
+  use array.Array
+  use Array as A
+
+  predicate for_all_sub_pred (p: 'a -> bool) (a: array 'a) (l u: int) =
+    forall i. l <= i <= u -> p a[i]
+
+  let function for_all_sub (p: 'a -> bool) (a: array 'a) (l u: int) : bool
+    requires { 0 <= l < length a }
+    requires { 0 <= u < length a }
+    ensures  { result <-> for_all_sub_pred p a l u }
+  =
+    for i = l to u do
+        invariant { l <= i <= u+1 }
+        invariant { for_all_sub_pred p a l (i-1) }
+        if not (p a[i]) then return false
+      done;
+      true
+
+  predicate for_all_pred (p: 'a -> bool) (a: array 'a) = for_all_sub_pred p a 0 (a.length-1)
+
+  let function for_all (p: 'a -> bool) (a: array 'a) : bool
+    ensures { result <-> for_all_pred p a }
+   = 
+    for i = 0 to a.length-1 do
+      invariant { 0 <= i <= a.length }
+      invariant { for_all_sub_pred p a 0 (i-1) }
+      if not (p a[i]) then return false
+    done;
+    true
+
+  predicate for_some_sub_pred (p: 'a -> bool) (a: array 'a) (l u: int) =
+    exists i. l <= i <= u && p a[i]
+
+  let function for_some_sub (p: 'a -> bool) (a: array 'a) (l u: int) : bool
+    requires { 0 <= l < length a }
+    requires { 0 <= u < length a }
+    ensures  { result <-> for_some_sub_pred p a l u }  
+  =
+    for i = l to u do
+        invariant { l <= i <= u+1 }
+        invariant { not (for_some_sub_pred p a l (i-1)) }
+        if p a[i] then return true
+      done;
+      false
+
+  predicate for_some_pred (p: 'a -> bool) (a: array 'a) = for_some_sub_pred p a 0 (a.length-1)
+
+  let function for_some (p: 'a -> bool) (a: array 'a) : bool
+    ensures { result <-> for_some_pred p a }
+  =
+    for i = 0 to a.length-1 do
+      invariant { 0 <= i <= a.length }
+      invariant { not (for_some_sub_pred p a 0 (i-1)) }
+      if p a[i] then return true
+    done;
+    false
+
+  predicate mem_sub_pred (eq:'a -> 'a -> bool) (x: 'a) (a: array 'a) (l u: int) =
+    for_some_sub_pred (eq x) a l u
+
+  let function mem_sub (eq:'a -> 'a -> bool) (x: 'a) (a: array 'a) (l u: int) : bool
+    requires { 0 <= l < length a }
+    requires { 0 <= u < length a }
+    ensures  { result <-> mem_sub_pred eq x a l u }
+  =
+    for_some_sub (eq x) a l u
+
+  predicate mem_pred (eq:'a -> 'a -> bool) (x: 'a) (a: array 'a) =
+    mem_sub_pred eq x a 0 (a.length-1)
+
+  let function mem (eq:'a -> 'a -> bool) (x: 'a) (a: array 'a) : bool
+    ensures  { result <-> mem_pred eq x a }
+  =
+    for_some (eq x) a
+
+end

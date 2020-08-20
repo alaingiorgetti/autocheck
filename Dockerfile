@@ -50,12 +50,12 @@ RUN export OPAMROOT=~/opam-coq.8.9.0 \
   && echo "\nexport OPAMROOT=~/opam-coq.8.9.0 \neval $(opam env --root=/home/opam/opam-coq.8.9.0)" >> ~/.profile \
   && echo "\n# opam configuration \nexport OPAMROOT=~/opam-coq.8.9.0 \neval $(opam env --root=/home/opam/opam-coq.8.9.0)" >> ~/.bashrc
 
-# 8. Coq 8.9.0 
+# 8. Coq 8.9.0
 RUN . ~/.profile \
  && opam repo add coq-released http://coq.inria.fr/opam/released \
  && opam install -y depext \
  && opam pin add coq 8.9.0 --yes \
- && opam depext --install -y coq-mathcomp-ssreflect \  
+ && opam depext --install -y coq-mathcomp-ssreflect \
  && opam depext --install -y coqide
 
 ######################################################################

@@ -1,3 +1,12 @@
+(********************************************************************)
+(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* FEMTO-ST institute                                               *)
+(********************************************************************)
+
+(********************************************************************)
+(*  This software is distributed under the terms of the GNU Lesser  *)
+(*  General Public License version 2.1                              *)
+(********************************************************************)
 
 (** OCaml driver for random and enumerative testing *)
 
@@ -22,15 +31,15 @@ module QCheck.QCheck_runner
 end
 
 module QCheck.QCheck
-  syntax type arbitrary "QCheck.arbitrary"
+  syntax type arbitrary "(%1 QCheck.arbitrary)"
   syntax val unit "QCheck.unit"
   syntax val bool "QCheck.bool"
   syntax val int "QCheck.int"
   syntax val int_range "QCheck.(int_range %1 %2)"
   syntax val int_bound "QCheck.(int_bound %1)"
-  syntax val list "QCheck.list"
+  syntax val list "QCheck.list %1"
   syntax val list_of_size "QCheck.(list_of_size (Gen.return %1) %2)"
-  syntax val array "QCheck.array"
+  syntax val array "QCheck.array %1"
   syntax val array_of_size "QCheck.(array_of_size (Gen.return %1) %2)"
   syntax val pair "QCheck.(pair %1 %2)"
   syntax val triple "QCheck.(triple %1 %2 %3)"
@@ -48,7 +57,7 @@ end
 
 module SCheck.SCheck
   syntax val bool "(SCheck.bool)"
-  syntax type serial "SCheck.serial"
+  syntax type serial "(%1 SCheck.serial)"
   syntax val unit "SCheck.unit"
   syntax val int_range "SCheck.(int_range %1 %2)"
   syntax val int_bound "SCheck.(int_bound %1)"
