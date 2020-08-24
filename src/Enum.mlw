@@ -495,6 +495,7 @@ module SmallCheck
     requires { n >= 0 }
     ensures  { result.new -> sound result }
   val next (c: cursor) : unit
+    writes   { c.current, c.new }
     requires { sound c }
     ensures  { c.new -> sound c }
 
@@ -552,6 +553,7 @@ module SmallCheckInt
     requires { n >= 0 }
     ensures { result.new -> sound result k }
   val next (c: cursor) (k: int) : unit
+    writes   { c.current, c.new }
     requires { sound c k }
     ensures  { c.new -> sound c k }
 
@@ -615,6 +617,7 @@ module Filter
     ensures  { result.new -> LX.min_lex result.current }
 
   val next_X (c: cursor) : unit
+    writes   { c.current, c.new }
     requires { LX.sound c }
     ensures  { c.new -> LX.sound c }
     ensures  { c.new -> lt_lex (old c.current) c.current }
@@ -635,6 +638,7 @@ module Filter
 
   let next (c: cursor) : unit
     diverges
+    writes   { c.current, c.new }
     requires { c.new }
     requires { LZ.sound c }
     ensures  { c.new -> LZ.sound c }
@@ -684,6 +688,7 @@ module FilterInt
     ensures  { result.new -> LX.min_lex result.current k }
 
   val next_X (c: cursor) (k: int) : unit
+    writes   { c.current, c.new }
     requires { LX.sound c k }
     ensures  { c.new -> LX.sound c k }
     ensures  { c.new -> lt_lex (old c.current) c.current }
@@ -704,6 +709,7 @@ module FilterInt
 
   let next (c: cursor) (k: int) : unit
     diverges
+    writes   { c.current, c.new }
     requires { c.new }
     requires { LZ.sound c k }
     ensures  { c.new -> LZ.sound c k }
@@ -775,6 +781,7 @@ module EndoEnum
     { current = a; new = true }
 
   let next (c: cursor) : unit
+    writes   { c.current, c.new }
     requires { sound c }
     ensures  { sound c }
     ensures  { c.current.length = (old c).current.length }
@@ -859,6 +866,7 @@ module FactEnum
     { current = a; new = true }
 
   let next (c: cursor) : unit
+    writes   { c.current, c.new } (* Added for Why3 1.3.1 *)
     requires { sound c }
     ensures  { sound c }
     ensures  { c.current.length = (old c).current.length }
@@ -907,7 +915,7 @@ module FactSound
     predicate is_XXX = is_fact,
     val create_cursor = create_cursor,
     val next = next
-    
+
   lemma b_is_fact_sound: forall a: array int. is_fact a -> b_fact a = true
 
   (* Bounded-exhaustive test of the lemma before proving it: *)
@@ -1127,6 +1135,7 @@ module PermutationEnum
     -> inc a b
 
   let next (c: cursor) : unit
+    writes   { c.current, c.new }
     requires { sound c }
     ensures  { sound c }
     ensures  { not c.new -> array_eq (old c.current) c.current }
