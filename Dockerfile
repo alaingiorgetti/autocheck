@@ -14,11 +14,11 @@
 # 1. OCaml 4.06.0 and latest version of the OPAM package manager for Linux Ubuntu 18.04
 FROM ocaml/opam2:ubuntu-18.04
 
-# 2. Confirm the working directory
-WORKDIR /home/opam
-
-# 3.
+# 2.
 RUN sudo apt-get update && sudo apt-get install -y autoconf automake wget m4 time libgmp-dev
+
+# 3. Confirm the working directory
+WORKDIR /home/opam
 
 ######################################################################
 # Installation of CVC3, CVC4 and Z3                                  #
@@ -66,11 +66,11 @@ RUN . ~/.profile \
 RUN . ~/.profile && opam depext --install alt-ergo=2.2.0
 
 ######################################################################
-# Installation of Why3 1.2.0 from git                                #
+# Installation of Why3 1.3.1 from git                                #
 ######################################################################
 
-# 10. Why3 1.2.0 from git
-RUN . ~/.profile && git clone -b 1.2.0 https://gitlab.inria.fr/why3/why3.git
+# 10. Why3 1.3.1 from git
+RUN . ~/.profile && git clone -b 1.3.1 https://gitlab.inria.fr/why3/why3.git
 
 # 11. Compilation of Why3 (1/2)
 RUN . ~/.profile && cd why3 && autoconf && automake --add-missing; exit 0
@@ -82,7 +82,8 @@ RUN . ~/.profile && cd why3 && ./configure && make && sudo make install
 RUN . ~/.profile && why3 config --detect-provers --detect-plugins
 
 # 14. Installation of QCheck
-RUN . ~/.profile && opam depext --install qcheck
+RUN . ~/.profile && opam depext --install qcheck=0.12
 
-# 15. Remove the installation files
+
+# 16. Remove the installation files
 RUN rm -rf cvc* z* *.tar.gz

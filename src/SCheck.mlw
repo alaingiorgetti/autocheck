@@ -73,6 +73,7 @@ module SCheck
 
   val function fact_of_size (size: int) : serial {array int}
   val function permut_of_size (size: int) : serial {array int}
+  val function barray_of_size (k size: int) : serial {array int}
 
 end
 

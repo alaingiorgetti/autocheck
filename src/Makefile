@@ -16,8 +16,11 @@ DIRS?= -L .
 
 ide:
 	why3 ide $(DIRS) TestExamples.mlw
+	why3 ide $(DIRS) Enum.mlw
 	why3 ide $(DIRS) QCheck.mlw
 	why3 ide $(DIRS) SCheck.mlw
+	echo 'Incomplete proof of inverse_in_place.mlw with Alt-Ergo 2.2.0, CVC4 1.6 and Z3 4.7.1 (one unproved assertion):'
+	why3 ide inverse_in_place.mlw
 
 # Tests of OCaml properties with QCheck.ml
 ot:

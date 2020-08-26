@@ -1,10 +1,14 @@
-(* Driver ocaml-unsafe_int.drv from Why3 1.2.0 adapted.
+(* Driver ocaml-unsafe_int.drv from Why3 1.3.1 adapted.
    The main changes are:
-   1. Line 'printer "ocaml-unsafe-int"' removed.
-   2. 'theory int.Int' replaced by par 'module int.Int', (=) added.
-   3. module EuclidianDivision added.
-   4. Arguments added to all functions in module array.Array.
-   5. module list.Length added.
+   1. Line 'printer "ocaml-unsafe-int"' removed, unknown program printer.
+   2. theory -> module, everywhere.
+   3. (=) added in 'module int.Int'.
+   4. module EuclidianDivision added.
+   5. 'syntax predicate' -> 'syntax val'.
+   6. 'syntax constant' -> 'syntax val'.
+   7. 'syntax function' -> 'syntax val'.
+   8. Arguments added to all functions in module array.Array.
+   9. modules array.Init and list.Length added.
 *)
 
 (** OCaml driver with Why3 type int being mapped to OCaml type int.
@@ -14,9 +18,8 @@
     overflows. *)
 
 
-theory BuiltIn
+module BuiltIn
   syntax type int "int"
-  syntax predicate  (=)   "(%1 = %2)"
 end
 
 (* import "ocaml-no-arith.drv" *)
@@ -24,22 +27,22 @@ end
 (* int *)
 
 module int.Int
-  syntax constant zero "0"
-  syntax constant one  "1"
+  syntax val zero "0"
+  syntax val one  "1"
   
   syntax literal   int    "%1"
 
-  syntax predicate (<)  "(%1 < %2)"
-  syntax predicate (<=) "(%1 <= %2)"
-  syntax predicate (>)  "(%1 > %2)"
-  syntax predicate (>=) "(%1 >= %2)"
+  syntax val (<)  "(%1 < %2)"
+  syntax val (<=) "(%1 <= %2)"
+  syntax val (>)  "(%1 > %2)"
+  syntax val (>=) "(%1 >= %2)"
   
   syntax val       (=)   "(%1 = %2)"
 
-  syntax function (+)   "(%1 + %2)"
-  syntax function (-)   "(%1 - %2)"
-  syntax function ( * ) "(%1 * %2)"
-  syntax function (-_)  "(- %1)"
+  syntax val (+)   "(%1 + %2)"
+  syntax val (-)   "(%1 - %2)"
+  syntax val ( * ) "(%1 * %2)"
+  syntax val (-_)  "(- %1)"
 end
 
 module int.ComputerDivision
@@ -47,46 +50,46 @@ module int.ComputerDivision
   syntax val mod "(%1 mod %2)"
 end
 
+(* FIXME: avoid Pervasives using a black list of reserved OCaml names *)
+
+module int.Abs
+  syntax val abs "(Pervasives.abs %1)"
+end
+
+module int.MinMax
+  syntax val min "(Pervasives.min %1 %2)"
+  syntax val max "(Pervasives.max %1 %2)"
+end
+
 module int.EuclideanDivision
   syntax val div "(%1 / %2)"
   syntax val mod "(%1 mod %2)"
-end
-
-(* FIXME: avoid Pervasives using a black list of reserved OCaml names *)
-
-theory int.Abs
-  syntax function abs "(Pervasives.abs %1)"
-end
-
-theory int.MinMax
-  syntax function min "(Pervasives.min %1 %2)"
-  syntax function max "(Pervasives.max %1 %2)"
 end
 
 (* TODO
    - number.Gcd
 *)
 
-theory int.Power
+module int.Power
   prelude "let rec power x n = if n = 0 then 1 else x * power x (n-1)"
-  syntax function power "(power %1 %2)"
+  syntax val power "(power %1 %2)"
 end
 
-theory int.Fact
+module int.Fact
   prelude "let rec fact n = if n <= 1 then 1 else n * fact (n-1)"
-  syntax function fact "(fact %1)"
+  syntax val fact "(fact %1)"
 end
 
-theory int.Fibonacci
+module int.Fibonacci
   prelude "let rec fib n = if n <= 1 then n else fib (n-2) + fib (n-1)"
-  syntax function fib "(fib %1)"
+  syntax val fib "(fib %1)"
 end
 
 (* WhyML *)
 
 module Ref
   syntax type     ref      "%1 ref"
-  syntax function contents "!%1"
+  syntax val contents "!%1"
   syntax val      ref      "ref %1"
 end
 
@@ -129,7 +132,7 @@ end
 module array.Array
   syntax type array "(%1 array)"
 
-  syntax function ([]) "(%1.(%2))"
+  syntax val ([]) "(%1.(%2))"
 
   syntax exception OutOfBounds "(Invalid_argument \"index out of bounds\")"
 
@@ -146,13 +149,13 @@ module array.Array
   syntax val blit          "(Array.blit %1 %2 %3 %4 %5)"
 end
 
-(* Module added by AG: *)
+(* 2 modules added by AG: *)
 module array.Init
   syntax val init "(Array.init %1 (fun i -> %2 i))"
 end
 
-theory list.Length
-  syntax function length "List.length %1"
+module list.Length
+  syntax val length "List.length %1"
 end
 
 module matrix.Matrix
@@ -160,8 +163,8 @@ module matrix.Matrix
 
   syntax exception OutOfBounds "(Invalid_argument \"index out of bounds\")"
 
-  syntax function rows     "(Array.length %1)"
-  syntax function columns  "(Array.length %1.(0))"
+  syntax val rows     "(Array.length %1)"
+  syntax val columns  "(Array.length %1.(0))"
   syntax val rows          "Array.length"
   syntax val columns       "(fun m -> Array.length m.(0))"
   syntax val get           "(fun m i j -> m.(i).(j))"
@@ -175,7 +178,7 @@ end
 module mach.int.Int31
   syntax val of_int   "%1"
 
-  syntax function to_int "(%1)"
+  syntax val to_int "(%1)"
 
   syntax type     int31     "int"
   syntax val      ( + )     "( + )"
@@ -193,7 +196,7 @@ end
 module mach.int.Int63
   syntax val      of_int   "%1"
 
-  syntax function to_int "(%1)"
+  syntax val to_int "(%1)"
 
   syntax type     int63     "int"
   syntax val      ( + )     "( + )"
@@ -256,8 +259,8 @@ module mach.matrix.Matrix63
 
   syntax exception OutOfBounds "(Invalid_argument \"index out of bounds\")"
 
-  syntax function rows     "(Array.length %1)"
-  syntax function columns  "(Array.length %1.(0))"
+  syntax val rows     "(Array.length %1)"
+  syntax val columns  "(Array.length %1.(0))"
   syntax val rows          "Array.length"
   syntax val columns       "(fun m -> Array.length m.(0))"
   syntax val get           "(fun m i j -> m.(i).(j))"

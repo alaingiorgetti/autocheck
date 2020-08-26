@@ -22,22 +22,22 @@ Installation with Docker
 
    Warnings: The Docker image is a large file, its construction can be very long.
    A network connection is required. If you already have a Docker image with this
-   name, either remove it or change the image name in Makefile.
+   name, then rename it, remove it or change the image name in Makefile and ctr*.sh.
 
 5. Create the container:
 
      make ctr
 
-   Warning: If you already have a Docker container with the same name, either
-   remove it or change the container name in Makefile.
+   Warning: If you already have a Docker container with the same name, then rename it,
+   remove it or change the container name in Makefile and ctr*.sh.
 
 6. Start an interactive session in the container and move to the src/ folder in it:
 
      make start
      cd src
 
-7. See the entries in the Makefile. They encapsulate various possible testing 
-   actions that you can experiment. For instance, run all OCaml tests as follows:
+7. See the entries in the Makefile. They encapsulate various possible testing or
+   proving actions that you can experiment. For instance, you can run all OCaml tests as follows:
 
      make ot
 

@@ -64,6 +64,7 @@ module SCheck.SCheck
   syntax val option "SCheck.(option %1)"
   syntax val fact_of_size "SCheck.(fact_of_size %1)"
   syntax val permut_of_size "SCheck.(permut_of_size %1)"
+  syntax val barray_of_size "SCheck.(barray_of_size %1 %2)"
 end
 
 module SCheck.Test

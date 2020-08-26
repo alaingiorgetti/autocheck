@@ -285,6 +285,7 @@ module EnumerativeTests
   use Enum.ArrayInjection
   use Enum.Fact
   use Enum.Permutation
+  use Enum.Barray
   use inverse_in_place.InverseInPlace
   use Properties
 
@@ -419,6 +420,17 @@ module EnumerativeTests
         SCheck.(permut_of_size 6)
         inverse_in_place_inverse
       )
+
+  (* Beginning of tests not documented in [EG20] *)
+
+  (* The generator of arrays of length 5 bounded by 3 is sound: *)
+  let function b_barray_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(barray_of_size 3 5)
+        (fun a -> b_barray a 3)
+    )
 
 end
 
