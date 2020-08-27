@@ -84,6 +84,8 @@ RUN . ~/.profile && why3 config --detect-provers --detect-plugins
 # 14. Installation of QCheck
 RUN . ~/.profile && opam depext --install qcheck=0.12
 
+# 15. Installation of ocamlbuild
+RUN . ~/.profile && opam depext --install ocamlbuild=0.14.0
 
 # 16. Remove the installation files
 RUN rm -rf cvc* z* *.tar.gz
