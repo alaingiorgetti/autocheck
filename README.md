@@ -111,6 +111,7 @@ the SMT solvers.'
 - 'However, we have shown in a fomer work' -> 'However, we have shown in a former work'
 
 
+- Acknowledgements section added
 
 The first three changes reflect the replacement of Why3 1.2.0 by Why3 1.3.1 in
 the tool, to solve a couple of issues related to the contents of the older
