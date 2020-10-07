@@ -1,0 +1,562 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link rel="stylesheet" href="style.css" type="text/css">
+<title>ABF20.html</title>
+</head>
+<body>
+<p>why3doc index <a href="index.html">index</a></p>
+<hr>
+<div class="why3doc">
+<h1>Formalization of [ABF20]</h1>
+
+<p>[ABF20] Michael Albert, Mathilde Bouvel, and Valentin Féray. Two first-order logics of 
+  permutations. Journal of Combinatorial Theory, Series A, 171:105158, April 2020.
+  https://arxiv.org/abs/1808.05459v2.
+</p>
+<h2>1. Extension of relations.mlw in stdlib, for TOOB</h2>
+<pre><span class="keyword1">module</span> <a name="Relation_">Relation</a>
+  <span class="keyword1">type</span> t
+  <span class="keyword1">type</span> <a name="u_12">u</a>
+  <span class="keyword1">predicate</span> <a name="rel_13">rel</a> <a href="#t_11">t</a> <a href="#u_12">u</a>
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Determinism_">Determinism</a> <span class="comment">(* or PartialFunction *)</span>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Relation_">Relation</a>
+  <span class="keyword1">axiom</span> <a name="Deter_18">Deter</a> : <span class="keyword1">forall</span> x:<a href="#t_11">t</a>. <span class="keyword1">forall</span> y z:<a href="#u_12">u</a>. <a href="#rel_13">rel</a> x y -&gt; <a href="#rel_13">rel</a> x z -&gt; y = z
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Functionality_">Functionality</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Determinism_">Determinism</a> <span class="keyword1">with</span> <span class="keyword1">axiom</span> <a href="#Deter_18">Deter</a>
+  <span class="keyword1">axiom</span> <a name="Total_23">Total</a> : <span class="keyword1">forall</span> x:<a href="#t_11">t</a>. <span class="keyword1">exists</span> y:<a href="#u_12">u</a>. <a href="#rel_13">rel</a> x y
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Injectivity_">Injectivity</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Relation_">Relation</a>
+  <span class="keyword1">axiom</span> <a name="Injec_28">Injec</a> : <span class="keyword1">forall</span> x y:<a href="#t_11">t</a>. <span class="keyword1">forall</span> a b:<a href="#u_12">u</a>. <a href="#rel_13">rel</a> x a -&gt; <a href="#rel_13">rel</a> y b -&gt; a = b -&gt; x = y
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Surjectivity_">Surjectivity</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Relation_">Relation</a>
+  <span class="keyword1">axiom</span> <a name="Surjec_33">Surjec</a> : <span class="keyword1">forall</span> y:<a href="#u_12">u</a>. <span class="keyword1">exists</span> x:<a href="#t_11">t</a>. <a href="#rel_13">rel</a> x y
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Bijectivity_">Bijectivity</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Functionality_">Functionality</a> <span class="keyword1">with</span> <span class="keyword1">axiom</span> <a href="#Deter_18">Deter</a>, <span class="keyword1">axiom</span> <a href="#Total_23">Total</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Injectivity_">Injectivity</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_11">t</a> = <a href="#t_11">t</a>, <span class="keyword1">type</span> <a href="#u_12">u</a> = <a href="#u_12">u</a>, <span class="keyword1">predicate</span> <a href="#rel_13">rel</a> = <a href="#rel_13">rel</a>, <span class="keyword1">axiom</span> <a href="#Injec_28">Injec</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Surjectivity_">Surjectivity</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_11">t</a> = <a href="#t_11">t</a>, <span class="keyword1">type</span> <a href="#u_12">u</a> = <a href="#u_12">u</a>, <span class="keyword1">predicate</span> <a href="#rel_13">rel</a> = <a href="#rel_13">rel</a>, <span class="keyword1">axiom</span> <a href="#Surjec_33">Surjec</a>
+<span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="MapRelation_">MapRelation</a>
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+
+  <span class="keyword1">type</span> <a name="t_46">t</a>
+  <span class="keyword1">type</span> <a name="u_47">u</a>
+
+  <span class="keyword1">predicate</span> <a name="map_rel_50">map_rel</a> (m: <a href="map.html#map_9">map</a> <a href="#t_46">t</a> <a href="#u_47">u</a>) (x:<a href="#t_46">t</a>) (y:<a href="#u_47">u</a>) = (m[x] = y)
+</pre>
+<div class="info"><p>Binary relation associated to any map, as its graph.</p>
+</div><pre>  <span class="keyword1">constant</span> <a name="m_53">m</a>: <a href="map.html#map_9">map</a> <a href="#t_46">t</a> <a href="#u_47">u</a>
+</pre>
+<div class="info"><p>Let <code>m</code> be any map.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="m_graph_56">m_graph</a> (x:<a href="#t_46">t</a>) (y:<a href="#u_47">u</a>) = <a href="#map_rel_50">map_rel</a> <a href="#m_53">m</a> x y
+</pre>
+<div class="info"><p>Let <code>m_graph</code> be its associated binary relation.</p>
+</div><pre>  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Functionality_">Functionality</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_11">t</a> = <a href="#t_46">t</a>, <span class="keyword1">type</span> <a href="#u_12">u</a> = <a href="#u_47">u</a>, <span class="keyword1">predicate</span> <a href="#rel_13">rel</a> = <a href="#m_graph_56">m_graph</a>
+</pre>
+<div class="info"><p>The graph of any map is a deterministic and total binary relation.</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>2. Extension of map.mlw in stdlib, for <code>ModelTOOB</code> and other modules</h2>
+<pre><span class="comment">(* Injectivity, surjectivity and bijectivity for any maps, more general than
+   module `MapInjection` in map.mlw in stdlib. *)</span>
+<span class="keyword1">module</span> <a name="MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+
+  <span class="keyword1">predicate</span> <a name="injective_72">injective</a> (m: <a href="map.html#map_9">map</a> 'a 'b) = <span class="keyword1">forall</span> i j: 'a. m[i] = m[j] -&gt; i = j
+</pre>
+<div class="info"><p><code>injective m</code> is true when <code>m</code> is an injection</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="surjective_75">surjective</a> (m: <a href="map.html#map_9">map</a> 'a 'b) = <span class="keyword1">forall</span> j: 'b. <span class="keyword1">exists</span> i: 'a. m[i] = j
+</pre>
+<div class="info"><p><code>surjective m</code> is true when <code>m</code> is a surjection</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="bijective_78">bijective</a> (m: <a href="map.html#map_9">map</a> 'a 'b) = <a href="#injective_72">injective</a> m /\ <a href="#surjective_75">surjective</a> m
+
+  <span class="comment">(* TODO: add more, by analogy with `MapInjection`. *)</span>
+
+<span class="keyword1">end</span>
+
+</pre>
+<h2>3. Proposal of extension of int.mlw in stdlib</h2>
+<pre><span class="keyword1">module</span> <a name="NumOfExt_">NumOfExt</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> int.<a href="int.html#NumOf_">NumOf</a>
+
+  <span class="keyword1">lemma</span> <a name="Numof_no_add_92">Numof_no_add</a>:
+    <span class="keyword1">forall</span> p : int -&gt; bool, a b c: int.
+    a <a href="int.html#infix%20%3C=_25">&lt;=</a> b <a href="int.html#infix%20%3C_21">&lt;</a> c -&gt; <span class="keyword1">not</span> p b -&gt; <a href="int.html#numof_317">numof</a> p a c = <a href="int.html#numof_317">numof</a> p a b <a href="int.html#infix%20+_19">+</a> <a href="int.html#numof_317">numof</a> p (b<a href="int.html#infix%20+_19">+</a>1) c
+</pre>
+<div class="info"><p>More general than <code>Numof_left_no_add</code> in the stdlib.</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>4. Type for {low,...,up}, proposed for a new file interval.mlw in stdlib</h2>
+<pre><span class="keyword1">module</span> <a name="Interval_">Interval</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+
+  <span class="keyword1">val</span> <span class="keyword1">constant</span> <a name="low_106">low</a> : int <span class="comment">(* lower interval endpoint *)</span>
+  <span class="keyword1">val</span> <span class="keyword1">constant</span>  <a name="up_107">up</a> : int <span class="comment">(* upper interval endpoint *)</span>
+  <span class="keyword1">axiom</span> <a name="Nonempty_108">Nonempty</a> : <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a>
+
+  <span class="keyword1">type</span> <a name="intvl_110">intvl</a> = {
+    <a name="elt_111">elt</a>: int
+  } <span class="keyword2">invariant</span> { <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> elt <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> }
+    <span class="keyword1">by</span> { elt = <a href="#low_106">low</a> }
+</pre>
+<div class="info"><p>Type for the interval of all integers between <code>low</code> and <code>up</code> included.</p>
+</div><pre>  <span class="keyword1">meta</span> coercion <span class="keyword1">function</span> <a href="#elt_111">elt</a>
+
+  <span class="keyword1">axiom</span> <a name="Elt_inj_117">Elt_inj</a> : <span class="keyword1">forall</span> n m:<a href="#intvl_110">intvl</a>. n.<a href="#elt_111">elt</a> = m.<a href="#elt_111">elt</a> -&gt; n = m
+</pre>
+<div class="info"><p>This property holds for records without invariant, but cannot be proved here.
+      We admit it. It entails <code>Trichotomy</code> and lemma <code>eq_intvl_eq</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="low_intvl_121">low_intvl</a> : <a href="#intvl_110">intvl</a> = { <a href="#elt_111">elt</a> = <a href="#low_106">low</a> }
+
+  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="eq_intvl_123">eq_intvl</a> (i j:<a href="#intvl_110">intvl</a>) = <a href="#elt_111">elt</a> i <a href="int.html#infix%20=_16">=</a> <a href="#elt_111">elt</a> j
+  <span class="keyword1">lemma</span> <a name="eq_intvl_eq_124">eq_intvl_eq</a> : <span class="keyword1">forall</span> i j: <a href="#intvl_110">intvl</a>. i = j &lt;-&gt; <a href="#eq_intvl_123">eq_intvl</a> i j
+
+  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_intvl_126">lt_intvl</a> (i j: <a href="#intvl_110">intvl</a>) = <a href="#elt_111">elt</a> i <a href="int.html#infix%20%3C_21">&lt;</a> <a href="#elt_111">elt</a> j
+
+  <span class="keyword1">clone</span> relations.<a href="relations.html#TotalStrictOrder_">TotalStrictOrder</a> <span class="keyword1">with</span>
+  <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#intvl_110">intvl</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#lt_intvl_126">lt_intvl</a>
+</pre>
+<div class="info"><p><code>lt_intvl</code> is a strict total order. <code>Trichotomy</code> is a consequence of axiom <code>Elt_inj</code> or lemma <code>eq_intvl_eq</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="int2intvl_133">int2intvl</a> (i:int) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> }
+    <span class="keyword2">ensures</span>  { result.<a href="#elt_111">elt</a> = i }
+  =
+    { <a href="#elt_111">elt</a> = i }
+</pre>
+<div class="info"><p>Constructor of <code>intvl</code> inhabitants.</p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="int2intvl_quasi_inj_139">int2intvl_quasi_inj</a> :
+    <span class="keyword1">forall</span> i j: int. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> -&gt; <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> -&gt; <a href="#int2intvl_133">int2intvl</a> i = <a href="#int2intvl_133">int2intvl</a> j -&gt; i = j
+
+  <span class="keyword1">lemma</span> <a name="int2intvlK_142">int2intvlK</a>: <span class="keyword1">forall</span> i:<a href="#intvl_110">intvl</a>. <a href="#int2intvl_133">int2intvl</a> (<a href="#elt_111">elt</a> i) = i
+
+  <span class="keyword1">use</span> int.<a href="int.html#NumOf_">NumOf</a>
+
+  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="numof_intvl_146">numof_intvl</a> (p: <a href="#intvl_110">intvl</a> -&gt; bool) (a b: <a href="#intvl_110">intvl</a>) : int
+  =
+    <a href="int.html#numof_317">numof</a> (<span class="keyword1">fun</span> (i:int) -&gt; <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; p (<a href="#int2intvl_133">int2intvl</a> i)) a.<a href="#elt_111">elt</a> b.<a href="#elt_111">elt</a>
+</pre>
+<div class="info"><p><code>numof_intvl p a b</code> is the number of integers n such that <code>a</code> &lt;= n &lt; <code>b</code> and <code>p n</code> holds.</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>5. Theory Of One Bijection</h2>
+<pre><span class="keyword1">module</span> <a name="TOOB_">TOOB</a>
+
+  <span class="keyword1">type</span> <a name="t_158">t</a>
+  <span class="keyword1">predicate</span> <a name="rel_159">rel</a> <a href="#t_158">t</a> <a href="#t_158">t</a></pre>
+<div class="info"><p><code>rel</code> is R in [ABF20].</p>
+</div><pre>  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Bijectivity_">Bijectivity</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_11">t</a> = <a href="#t_158">t</a>, <span class="keyword1">type</span> <a href="#u_12">u</a> = <a href="#t_158">t</a>, <span class="keyword1">predicate</span> <a href="#rel_13">rel</a> = <a href="#rel_159">rel</a>,
+    <span class="keyword1">axiom</span> <a href="#Deter_18">Deter</a>, <span class="keyword1">axiom</span> <a href="#Total_23">Total</a>, <span class="keyword1">axiom</span> <a href="#Injec_28">Injec</a>, <span class="keyword1">axiom</span> <a href="#Surjec_33">Surjec</a>
+
+<span class="keyword1">end</span>
+
+</pre>
+<h2>6. Models for TOOB</h2>
+<p>Hereafter we only consider models where permutations are endomaps on the 
+    type <code>intvl</code> satisfying the predicate <code>MapInjSurjBij.bijective</code>.</p>
+<pre><span class="keyword1">module</span> <a name="ModelTOOB_">ModelTOOB</a>
+
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#Interval_">Interval</a>
+  <span class="keyword1">use</span> <a href="#MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">val</span> <span class="keyword1">constant</span> <a name="sigma_179">sigma</a> : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>
+  <span class="keyword1">axiom</span> <a name="sigma_bij_180">sigma_bij</a> : <a href="#bijective_78">bijective</a> <a href="#sigma_179">sigma</a>
+</pre>
+<div class="info"><p>Permutation model.</p>
+</div><pre>  <span class="keyword1">clone</span> <a href="#MapRelation_">MapRelation</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_46">t</a> = <a href="#intvl_110">intvl</a>, <span class="keyword1">type</span> <a href="#u_47">u</a> = <a href="#intvl_110">intvl</a>, <span class="keyword1">constant</span> <a href="#m_53">m</a> = <a href="#sigma_179">sigma</a>, <span class="keyword1">axiom</span> <a href="#Deter_18">Deter</a>, <span class="keyword1">axiom</span> <a href="#Total_23">Total</a>
+</pre>
+<div class="info"><p>Provides <code>map_rel</code> and the properties that the graph of <code>sigma</code> is deterministic and total.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="rel_sigma_186">rel_sigma</a> (i j: <a href="#intvl_110">intvl</a>) = <a href="#map_rel_50">map_rel</a> <a href="#sigma_179">sigma</a> i j
+</pre>
+<div class="info"><p>Relation associated to the permutation <code>sigma</code>.</p>
+</div><pre>  <span class="keyword1">clone</span> <a href="#TOOB_">TOOB</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_158">t</a> = <a href="#intvl_110">intvl</a>, <span class="keyword1">predicate</span> <a href="#rel_159">rel</a> = <a href="#rel_sigma_186">rel_sigma</a>
+</pre>
+<div class="info"><p>The pair (<code>intvl</code>,<code>rel_sigma</code>) forms a (permutation) model of TOOB.
+      Axioms <code>Deter</code> and <code>Injec</code> are automatically proved with Alt-Ergo.
+      Axiom <code>Total</code> is proved by Z3.
+      Axiom <code>Surjec</code> is interactively proved with inline_all; CVC4 1.6.</p>
+</div><pre><span class="keyword1">end</span>
+
+<span class="keyword1">module</span> <a name="Proposition2_">Proposition2</a>
+
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#Interval_">Interval</a>
+  <span class="keyword1">use</span> <a href="#MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">type</span> <a name="a_204">a</a>
+  <span class="keyword1">predicate</span> <a name="rel_205">rel</a> <a href="#a_204">a</a> <a href="#a_204">a</a>
+  <span class="keyword1">clone</span> <a href="#TOOB_">TOOB</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_158">t</a> = <a href="#a_204">a</a>, <span class="keyword1">predicate</span> <a href="#rel_159">rel</a> = <a href="#rel_205">rel</a>,
+    <span class="keyword1">axiom</span> <a href="#Deter_18">Deter</a>, <span class="keyword1">axiom</span> <a href="#Total_23">Total</a>, <span class="keyword1">axiom</span> <a href="#Injec_28">Injec</a>, <span class="keyword1">axiom</span> <a href="#Surjec_33">Surjec</a>
+</pre>
+<div class="info"><p>A model of TOOB is a pair (<code>a</code>,<code>rel</code>) satisfying all axioms of TOOB.</p>
+</div><pre>  <span class="keyword1">function</span> <a name="a2intvl_211">a2intvl</a> <a href="#a_204">a</a> : <a href="#intvl_110">intvl</a>
+  <span class="keyword1">function</span> <a name="intvl2a_212">intvl2a</a> <a href="#intvl_110">intvl</a> : <a href="#a_204">a</a>
+  <span class="keyword1">clone</span> functions.<a href="functions.html#Bijective_">Bijective</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="functions.html#t_17">t</a> = <a href="#a_204">a</a>, <span class="keyword1">type</span> <a href="functions.html#u_18">u</a> = <a href="#intvl_110">intvl</a>,
+    <span class="keyword1">function</span> <a href="functions.html#t2u_19">t2u</a> = <a href="#a2intvl_211">a2intvl</a>, <span class="keyword1">function</span> <a href="functions.html#u2t_20">u2t</a> = <a href="#intvl2a_212">intvl2a</a>, <span class="keyword1">axiom</span> <a href="functions.html#Cancel_22">Cancel</a>, <span class="keyword1">axiom</span> Right.<a href="functions.html#Cancel_22">Cancel</a>
+</pre>
+<div class="info"><p>The property that <code>a</code> is finite is specified by the existence of a pair of mutually
+      inverse bijections with <code>intvl</code>.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="map_rel_217">map_rel</a> (m: <a href="map.html#map_9">map</a> 'a 'b) (x: 'a) (y: 'b) = (m[x] = y)
+</pre>
+<div class="info"><p>Binary relation associated to any map, as its graph.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="isomorphic_219">isomorphic</a> (sigma : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>) =
+    <span class="keyword1">exists</span> f: <a href="map.html#map_9">map</a> <a href="#a_204">a</a> <a href="#intvl_110">intvl</a>. <a href="#bijective_78">bijective</a> f /\ <span class="keyword1">forall</span> x y:<a href="#a_204">a</a>. <a href="#rel_205">rel</a> x y &lt;-&gt; <a href="#map_rel_217">map_rel</a> sigma (f x) (f y)
+</pre>
+<div class="info"><p><code>(isomorphic sigma)</code> holds iff (<code>a</code>,<code>rel</code>) and (<code>intvl</code>,<code>map_rel sigma</code>) are isomorphic.</p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="ex_rel_permut_223">ex_rel_permut</a> : <span class="keyword1">exists</span> rel_permut : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>.
+    <span class="keyword1">forall</span> i j:<a href="#intvl_110">intvl</a>. rel_permut[i] = j &lt;-&gt; <a href="#rel_205">rel</a> (<a href="#intvl2a_212">intvl2a</a> i) (<a href="#intvl2a_212">intvl2a</a> j)
+</pre>
+<div class="info"><p>Key lemma for the proof of Proposition 2, proved with Coq.</p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="Proposition2_227">Proposition2</a> : <span class="keyword1">exists</span> sigma: <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>. <a href="#bijective_78">bijective</a> sigma /\ <a href="#isomorphic_219">isomorphic</a> sigma
+</pre>
+<div class="info"><p>[ABF20, Proposition 2]. Not proved with Auto Level 3. Proved interactively with Why3.
+      Also proved interactively with Coq.</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>7. Theory Of Two Orders</h2>
+<pre><span class="keyword1">module</span> <a name="TOTO_">TOTO</a>
+
+  <span class="keyword1">type</span> <a name="t_238">t</a>            <span class="comment">(* type of positions and values    *)</span>
+  <span class="keyword1">predicate</span> <a name="ltP_239">ltP</a> <a href="#t_238">t</a> <a href="#t_238">t</a> <span class="comment">(* strict total order on positions *)</span>
+  <span class="keyword1">predicate</span> <a name="ltV_240">ltV</a> <a href="#t_238">t</a> <a href="#t_238">t</a> <span class="comment">(* strict total order on values    *)</span>
+
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> relations.<a href="relations.html#TotalStrictOrder_">TotalStrictOrder</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#t_238">t</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#ltP_239">ltP</a>,
+    <span class="keyword1">axiom</span> <a href="relations.html#Trans_23">Trans</a>, <span class="keyword1">axiom</span> <a href="relations.html#Asymm_33">Asymm</a>, <span class="keyword1">axiom</span> <a href="relations.html#Trichotomy_79">Trichotomy</a>
+
+  <span class="keyword1">clone</span> relations.<a href="relations.html#TotalStrictOrder_">TotalStrictOrder</a> <span class="keyword1">as</span> V <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#t_238">t</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#ltV_240">ltV</a>,
+    <span class="keyword1">axiom</span> <a href="relations.html#Trans_23">Trans</a>, <span class="keyword1">axiom</span> <a href="relations.html#Asymm_33">Asymm</a>, <span class="keyword1">axiom</span> <a href="relations.html#Trichotomy_79">Trichotomy</a>
+
+<span class="keyword1">end</span>
+
+</pre>
+<h2>8. Type for the arcs of the graph of a map</h2>
+<pre><span class="keyword1">module</span> <a name="MapGraph_">MapGraph</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#Interval_">Interval</a>
+
+  <span class="keyword1">constant</span> <a name="m_259">m</a> : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>
+  <span class="keyword1">type</span> <a name="arrow_260">arrow</a> = {
+    <a name="source_261">source</a> : <a href="#intvl_110">intvl</a>;
+    <a name="target_262">target</a> : <a href="#intvl_110">intvl</a>
+  } <span class="keyword2">invariant</span> { target = <a href="#m_259">m</a>[source] }
+    <span class="keyword1">by</span> { source = <a href="#low_intvl_121">low_intvl</a>; target = <a href="#m_259">m</a>[<a href="#low_intvl_121">low_intvl</a>] }
+</pre>
+<div class="info"><p>Type for (i,<code>m</code>(i)), for low &lt;= i &lt;= <code>up</code>.</p>
+</div><pre>  <span class="keyword1">axiom</span> <a name="Source_inj_267">Source_inj</a>: <span class="keyword1">forall</span> a b:<a href="#arrow_260">arrow</a>. <a href="#source_261">source</a> a = <a href="#source_261">source</a> b -&gt; a = b
+</pre>
+<div class="info"><p>This axiom is necessary to prove lemmas <code>eq_arrow_eq</code> and <code>Trichotomy</code>.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="eq_arrow_270">eq_arrow</a> (a b: <a href="#arrow_260">arrow</a>) = a.<a href="#source_261">source</a> = b.<a href="#source_261">source</a> /\ a.<a href="#target_262">target</a> = b.<a href="#target_262">target</a>
+
+  <span class="keyword1">lemma</span> <a name="eq_arrow_eq_272">eq_arrow_eq</a>: <span class="keyword1">forall</span> a b: <a href="#arrow_260">arrow</a>. <a href="#eq_arrow_270">eq_arrow</a> a b &lt;-&gt; a = b
+</pre>
+<div class="info"><p>This lemma makes the semantics of <code>a = b</code> explicit. &lt;- is easy.
+      -&gt; is a consequence of axiom <code>Source_inj</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_source_276">lt_source</a> (a b: <a href="#arrow_260">arrow</a>) = a.<a href="#source_261">source</a>.<a href="#elt_111">elt</a> <a href="int.html#infix%20%3C_21">&lt;</a> b.<a href="#source_261">source</a>.<a href="#elt_111">elt</a>
+</pre>
+<div class="info"><p>Strict total order on type <code>arrow</code>.</p>
+</div><pre>  <span class="keyword1">clone</span> <span class="keyword1">export</span> relations.<a href="relations.html#TotalStrictOrder_">TotalStrictOrder</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#arrow_260">arrow</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#lt_source_276">lt_source</a>
+
+<span class="keyword1">end</span>
+
+</pre>
+<h2>9. Models for TOTO</h2>
+<pre><span class="keyword1">module</span> <a name="ModelTOTO_">ModelTOTO</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#Interval_">Interval</a>
+  <span class="keyword1">use</span> <a href="#MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">constant</span> <a name="sigma_293">sigma</a> : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>
+  <span class="keyword1">axiom</span> <a name="sigma_bij_294">sigma_bij</a> : <a href="#bijective_78">bijective</a> <a href="#sigma_293">sigma</a>
+
+  <span class="keyword1">clone</span> <a href="#MapGraph_">MapGraph</a> <span class="keyword1">with</span> <span class="keyword1">constant</span> <a href="#m_259">m</a> = <a href="#sigma_293">sigma</a>, <span class="keyword1">axiom</span> <a href="#Source_inj_267">Source_inj</a> <span class="comment">(* provides type arrow, etc *)</span>
+
+  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="ltP_sigma_298">ltP_sigma</a> (a b: <a href="#arrow_260">arrow</a>) = a.<a href="#source_261">source</a>.<a href="#elt_111">elt</a> <a href="int.html#infix%20%3C_21">&lt;</a> b.<a href="#source_261">source</a>.<a href="#elt_111">elt</a>
+  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="ltV_sigma_299">ltV_sigma</a> (a b: <a href="#arrow_260">arrow</a>) = a.<a href="#target_262">target</a>.<a href="#elt_111">elt</a> <a href="int.html#infix%20%3C_21">&lt;</a> b.<a href="#target_262">target</a>.<a href="#elt_111">elt</a>
+
+  <span class="keyword1">clone</span> <a href="#TOTO_">TOTO</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_238">t</a> = <a href="#arrow_260">arrow</a>, <span class="keyword1">predicate</span> <a href="#ltP_239">ltP</a> = <a href="#ltP_sigma_298">ltP_sigma</a>, <span class="keyword1">predicate</span> <a href="#ltV_240">ltV</a> = <a href="#ltV_sigma_299">ltV_sigma</a>
+
+<span class="keyword1">end</span>
+
+</pre>
+<h1>Restriction to integer intervals for simpler constructions and proofs</h1>
+
+<p>Hereafter we abandon the objectives of fidelity to [ABF20] and universality of logic with any support set,
+ and we focus on types <code>int</code> and <code>intvl</code>. Thus we get shorter definitions and computable predicates and functions.</p>
+<h2>1. Strict Total Order on one integer Interval</h2>
+<pre><span class="keyword1">module</span> <a name="STOI_">STOI</a>
+
+  <span class="keyword1">type</span> <a name="t_316">t</a>
+
+  <span class="keyword1">val</span> <span class="keyword1">predicate</span> <a name="lt_318">lt</a> <a href="#t_316">t</a> <a href="#t_316">t</a>
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> relations.<a href="relations.html#TotalStrictOrder_">TotalStrictOrder</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#t_316">t</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#lt_318">lt</a>,
+  <span class="keyword1">axiom</span> <a href="relations.html#Trans_23">Trans</a>, <span class="keyword1">axiom</span> <a href="relations.html#Asymm_33">Asymm</a>, <span class="keyword1">axiom</span> <a href="relations.html#Trichotomy_79">Trichotomy</a>
+
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> relations.<a href="relations.html#Irreflexive_">Irreflexive</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="relations.html#t_7">t</a> = <a href="#t_316">t</a>, <span class="keyword1">predicate</span> <a href="relations.html#rel_8">rel</a> = <a href="#lt_318">lt</a>
+</pre>
+<div class="info"><p>Provides the property <code>Strict</code> that simplifies the Coq proof for <code>rank</code> injectivity.
+      Similar to the following lemma:
+  lemma Strict : forall i:intvl. not (lt i i)
+</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>2. Permutation model for STOI</h2>
+<pre><span class="keyword1">module</span> <a name="ModelSTOI_">ModelSTOI</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">val</span> <span class="keyword1">constant</span> <a name="size_339">size</a> : int
+
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Interval_">Interval</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_339">size</a>, <span class="keyword1">axiom</span> <a href="#Nonempty_108">Nonempty</a>, <span class="keyword1">axiom</span> <a href="#Elt_inj_117">Elt_inj</a>
+</pre>
+<div class="info"><p>Defines <code>intvl</code> as the interval [<code>one</code>..<code>size</code>]. 1 &lt;= size is assumed.</p>
+</div><pre>  <span class="keyword1">val</span> <span class="keyword1">constant</span> <a name="sigma_344">sigma</a> : <a href="map.html#map_9">map</a> <a href="#intvl_110">intvl</a> <a href="#intvl_110">intvl</a>
+  <span class="keyword1">axiom</span> <a name="sigma_bij_345">sigma_bij</a> : <a href="#bijective_78">bijective</a> <a href="#sigma_344">sigma</a>
+
+  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_sigma_347">lt_sigma</a> (i j: <a href="#intvl_110">intvl</a>) = <a href="#lt_intvl_126">lt_intvl</a> (<a href="#sigma_344">sigma</a> i) (<a href="#sigma_344">sigma</a> j)
+
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#STOI_">STOI</a> <span class="keyword1">with</span> <span class="keyword1">type</span> <a href="#t_316">t</a> = <a href="#intvl_110">intvl</a>, <span class="keyword1">val</span> <a href="#lt_318">lt</a> = <a href="#lt_sigma_347">lt_sigma</a>
+</pre>
+<div class="info"><p>The pair ([<code>one</code>..<code>size</code>],<code>lt_sigma</code>) is a (permutation) model of STOI.
+      Axioms Deter and Injec are automatically proved with Alt-Ergo.
+      Axiom Total is proved by Z3.
+      Axiom Surjec is automatically proved with inline_all; CVC4 1.6.</p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>3. Two mutually inverse permutations associated to a strict total order</h2>
+
+<p>[ABF20] defines a rank function to associate a permutation to any model of TOTO, composed of two strict
+ total orders. Here we associate a rank function to any strict total order on <code>intvl</code>. Its type requires
+ a proof that its range is <code>intvl</code>. Then we prove (with Coq) that <code>rank lt</code> is injective for any strict
+ total order <code>lt</code>. Surjectivity is more difficult to prove. We implement a candidate for an inverse 
+ function (not in [ABF20]). This implementation goes through a constructive definition of the minimum 
+ and maximum of a strict total order on <code>intvl</code>, and of a function <code>succ</code>.</p>
+<pre><span class="keyword1">module</span> <a name="Rank_">Rank</a>
+
+  <span class="keyword1">use</span> <span class="keyword1">ref</span>.<a href="ref.html#Ref_">Ref</a>
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> int.<a href="int.html#NumOf_">NumOf</a>
+  <span class="keyword1">use</span> map.<a href="map.html#Map_">Map</a>
+  <span class="keyword1">use</span> <a href="#NumOfExt_">NumOfExt</a>
+  <span class="keyword1">use</span> <a href="#MapInjSurjBij_">MapInjSurjBij</a>
+
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Interval_">Interval</a> <span class="keyword1">with</span> <span class="keyword1">axiom</span> <a href="#Nonempty_108">Nonempty</a>, <span class="keyword1">axiom</span> <a href="#Elt_inj_117">Elt_inj</a>
+</pre>
+<div class="info"><p>All that follows is defined for the clones of <code>low</code>, <code>up</code> and <code>intvl</code> introduced here.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="trans_379">trans</a> (rel : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) = <span class="keyword1">forall</span> x y z:<a href="#intvl_110">intvl</a>. rel x y -&gt; rel y z -&gt; rel x z
+  <span class="keyword1">predicate</span> <a name="asymm_380">asymm</a> (rel : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#intvl_110">intvl</a>. rel x y -&gt; <span class="keyword1">not</span> rel y x
+  <span class="keyword1">predicate</span> <a name="partialStrictOrder_381">partialStrictOrder</a> (rel : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) = <a href="#trans_379">trans</a> rel /\ <a href="#asymm_380">asymm</a> rel
+  <span class="keyword1">predicate</span> <a name="trichotomy_382">trichotomy</a> (rel : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#intvl_110">intvl</a>. rel x y \/ rel y x \/ x = y
+  <span class="keyword1">predicate</span> <a name="totalStrictOrder_383">totalStrictOrder</a> (rel : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) = <a href="#partialStrictOrder_381">partialStrictOrder</a> rel /\ <a href="#trichotomy_382">trichotomy</a> rel
+
+  <span class="keyword1">lemma</span> <a name="irrefl_385">irrefl</a> :
+    <span class="keyword1">forall</span> lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool. <a href="#asymm_380">asymm</a> lt -&gt; <span class="keyword1">forall</span> a:<a href="#intvl_110">intvl</a>. lt a a = <span class="keyword1">false</span>
+</pre>
+<div class="info"><p><code>lt</code> is irreflexive. Helps the Why3 proofs for <code>numof_max</code> and the range of <code>rank</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_int_389">lt_int</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (a:<a href="#intvl_110">intvl</a>) (j:int) = <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; lt (<a href="#int2intvl_133">int2intvl</a> j) a
+
+  <span class="keyword1">lemma</span> <a name="numof_max_391">numof_max</a> : <span class="keyword1">forall</span> lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool. <a href="#asymm_380">asymm</a> lt -&gt;
+    <span class="keyword1">forall</span> a:<a href="#intvl_110">intvl</a>. ((<a href="int.html#numof_317">numof</a> (<a href="#lt_int_389">lt_int</a> lt a) <a href="#low_106">low</a> (<a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1)) <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> <a href="#low_106">low</a>)
+</pre>
+<div class="info"><p>Consequence of irreflexivity of <code>lt</code> and lemma <code>Numof_no_add</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_395">rank</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (a:<a href="#intvl_110">intvl</a>) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+  =
+    <a href="#int2intvl_133">int2intvl</a> ((<a href="int.html#numof_317">numof</a> (<a href="#lt_int_389">lt_int</a> lt a) <a href="#low_106">low</a> (<a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1)) <a href="int.html#infix%20+_19">+</a> <a href="#low_106">low</a>)
+</pre>
+<div class="info"><p><code>rank'vc</code> is about the range of <code>rank</code>.
+      The lower bound is a consequence of lemma int.NumOf.Numof_bounds.
+      The upper bound is a consequence of <code>numof_max</code>.</p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="rank_lt_inj_403">rank_lt_inj</a>: <span class="keyword1">forall</span> lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool. <a href="#totalStrictOrder_383">totalStrictOrder</a> lt -&gt; <a href="#injective_72">injective</a> (<a href="#rank_395">rank</a> lt)
+</pre>
+<div class="info"><p>If <code>lt</code> is a strict total order then <code>rank lt</code> is injective.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_left_406">is_max_left</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (m:<a href="#intvl_110">intvl</a>) (i:int) =
+    <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; lt (<a href="#int2intvl_133">int2intvl</a> j) m \/ <a href="#int2intvl_133">int2intvl</a> j = m
+</pre>
+<div class="info"><p><code>(is_max_left lt m i)</code> iff <code>m</code> is the maximum of <code>lt</code> on [<code>int2intvl low</code>..<code>int2intvl i</code>].</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_410">is_max</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (m:<a href="#intvl_110">intvl</a>) = <a href="#is_max_left_406">is_max_left</a> lt m <a href="#up_107">up</a>
+</pre>
+<div class="info"><p><code>(is_max lt m)</code> iff <code>m</code> is the maximum of <code>lt</code> on <code>intvl</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="max_413">max</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+    <span class="keyword2">ensures</span>  { <a href="#is_max_410">is_max</a> lt result }
+  =
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> m = <a href="#int2intvl_133">int2intvl</a> <a href="#low_106">low</a> <span class="keyword1">in</span>
+    <span class="keyword1">for</span> i = <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <span class="keyword1">to</span> <a href="#up_107">up</a> <span class="keyword1">do</span>
+      <span class="keyword2">invariant</span> { <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
+      <span class="keyword2">invariant</span> {<a href="#is_max_left_406">is_max_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword1">let</span> j = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span>
+      <span class="keyword1">if</span> lt m j <span class="keyword1">then</span> m <a href="ref.html#infix%20:=_20">:=</a> j
+    <span class="keyword1">done</span>;
+    m
+</pre>
+<div class="info"><p><code>max lt</code> is the maximal number for <code>lt</code>.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_succ_left_427">is_succ_left</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (a b:<a href="#intvl_110">intvl</a>) (i:int) = lt a b /\
+    <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; <span class="keyword1">let</span> c = <a href="#int2intvl_133">int2intvl</a> j <span class="keyword1">in</span> <span class="keyword1">not</span> (lt a c &amp;&amp; lt c b)
+    <span class="comment">(* lt c a \/ c.elt = a.elt \/ b.elt = c.elt \/ lt b c *)</span>
+
+  <span class="keyword1">predicate</span> <a name="is_succ_431">is_succ</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (a b:<a href="#intvl_110">intvl</a>) = <a href="#is_succ_left_427">is_succ_left</a> lt a b <a href="#up_107">up</a>
+  <span class="comment">(* lt a b /\ forall c:intvl. lt c a \/ c.elt = a.elt \/ b.elt = c.elt \/ lt b c *)</span>
+
+  <span class="keyword1">let</span> <a name="succ_434">succ</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (a:<a href="#intvl_110">intvl</a>) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+    <span class="keyword2">requires</span> { a &lt;&gt; <a href="#max_413">max</a> lt }
+    <span class="keyword2">ensures</span>  { <a href="#is_succ_431">is_succ</a> lt a result }
+  =
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> i = <a href="#low_106">low</a> <span class="keyword1">in</span>
+    <span class="keyword1">while</span> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; <span class="keyword1">not</span> (lt a (<a href="#int2intvl_133">int2intvl</a> i)) <span class="keyword1">do</span>  <span class="comment">(* the first loop searches some (int2intvl i) greater than a *)</span>
+      <span class="keyword2">invariant</span> { <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
+      <span class="keyword2">invariant</span> { <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C_21">&lt;</a> i -&gt; <span class="keyword1">not</span> (lt a (<a href="#int2intvl_133">int2intvl</a> j)) }
+      <span class="keyword2">variant</span> { <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> i }
+      i <a href="ref.html#infix%20:=_20">:=</a> i<a href="int.html#infix%20+_19">+</a>1
+    <span class="keyword1">done</span>;
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> b = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span> <span class="comment">(* candidate for (succ a) *)</span>
+    i <a href="ref.html#infix%20:=_20">:=</a> i<a href="int.html#infix%20+_19">+</a>1;
+    <span class="keyword1">while</span> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> <span class="keyword1">do</span> <span class="comment">(* the second loop improves this (int2intvl i) greater than a *)</span>
+      <span class="keyword2">invariant</span> { <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
+      <span class="keyword2">invariant</span> { <a href="#is_succ_left_427">is_succ_left</a> lt a b (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword2">variant</span> { <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> i }
+      <span class="keyword1">let</span> k = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span>
+      <span class="keyword1">if</span> lt a k &amp;&amp; lt k b <span class="keyword1">then</span> b <a href="ref.html#infix%20:=_20">:=</a> k;
+      i <a href="ref.html#infix%20:=_20">:=</a> i<a href="int.html#infix%20+_19">+</a>1
+    <span class="keyword1">done</span>;
+    b
+</pre>
+<div class="info"><p>Proved with &#39;Auto Level 3&#39;.</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_left_459">is_min_left</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (m:<a href="#intvl_110">intvl</a>) (i:int) =
+    <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; lt m (<a href="#int2intvl_133">int2intvl</a> j) \/ m = <a href="#int2intvl_133">int2intvl</a> j
+</pre>
+<div class="info"><p><code>(is_min_left lt m i)</code> iff <code>m</code> is the minimum of <code>lt</code> on [<code>int2intvl low</code>..<code>int2intvl i</code>].</p>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_463">is_min</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (m:<a href="#intvl_110">intvl</a>) = <a href="#is_min_left_459">is_min_left</a> lt m <a href="#up_107">up</a>
+</pre>
+<div class="info"><p><code>(is_min lt m)</code> iff <code>m</code> is the minimum of <code>lt</code> on <code>intvl</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="min_466">min</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+    <span class="keyword2">ensures</span>  { <a href="#is_min_463">is_min</a> lt result }
+  =
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> m = <a href="#int2intvl_133">int2intvl</a> <a href="#low_106">low</a> <span class="keyword1">in</span>
+    <span class="keyword1">for</span> i = <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <span class="keyword1">to</span> <a href="#up_107">up</a> <span class="keyword1">do</span>
+      <span class="keyword2">invariant</span> { <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
+      <span class="keyword2">invariant</span> { <a href="#is_min_left_459">is_min_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword1">let</span> j = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span>
+      <span class="keyword1">if</span> lt j m <span class="keyword1">then</span> m <a href="ref.html#infix%20:=_20">:=</a> j
+    <span class="keyword1">done</span>;
+    m
+</pre>
+<div class="info"><p><code>min lt</code> is the minimal number for <code>lt</code>.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_480">unrank</a> (lt : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool) (i:<a href="#intvl_110">intvl</a>) : <a href="#intvl_110">intvl</a>
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+  =
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> k = i.<a href="#elt_111">elt</a> <span class="keyword1">in</span>
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> j = <a href="#min_466">min</a> lt <span class="keyword1">in</span>
+    <span class="keyword1">while</span> <span class="keyword1">not</span> (<a href="#eq_intvl_123">eq_intvl</a> j (<a href="#max_413">max</a> lt)) &amp;&amp; k <a href="int.html#infix%20%3E_24">&gt;</a> <a href="#low_106">low</a> <span class="keyword1">do</span>
+      <span class="keyword2">variant</span> { k<a href="int.html#infix%20+_19">+</a>1<a href="int.html#infix%20-_23">-</a><a href="#low_106">low</a> }
+      j <a href="ref.html#infix%20:=_20">:=</a> <a href="#succ_434">succ</a> lt j;
+      k <a href="ref.html#infix%20:=_20">:=</a> k<a href="int.html#infix%20-_23">-</a>1
+    <span class="keyword1">done</span>;
+    j
+
+  <span class="keyword1">lemma</span>   <a name="rank_ltK_492">rank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#rank_395">rank</a> lt (<a href="#unrank_480">unrank</a> lt i) = i
+</pre>
+<div class="info"><p><code>rank lt</code> is the left inverse of <code>unrank lt</code>. Tested in the module <code>Tests' below. </code></p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="unrank_ltK_495">unrank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#unrank_480">unrank</a> lt (<a href="#rank_395">rank</a> lt i) = i
+</pre>
+<div class="info"><p><code>unrank lt</code> is the left inverse of <code>rank lt</code>. Tested in the module <code>Tests' below. </code></p>
+</div><pre><span class="keyword1">end</span>
+
+</pre>
+<h2>4. Tests of two cancellation lemmas</h2>
+<pre><span class="keyword1">module</span> <a name="Tests_">Tests</a>
+
+  <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
+  <span class="keyword1">use</span> array.<a href="array.html#Array_">Array</a>
+  <span class="comment">(* Enumerative testing tool *)</span>
+  <span class="keyword1">use</span> Enum.<a href="Enum.html#Permutation_">Permutation</a>
+  <span class="keyword1">use</span> SCheck.<a href="SCheck.html#Test_">Test</a>
+  <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_">SCheck</a>
+  <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_runner_">SCheck_runner</a>
+
+  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="size_513">size</a> : int = 6
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Rank_">Rank</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_513">size</a>, <span class="keyword1">axiom</span> <a href="#Nonempty_108">Nonempty</a>, <span class="keyword1">axiom</span> <a href="#Elt_inj_117">Elt_inj</a>
+
+  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="array_sto_517">array_sto</a> (a:{<a href="array.html#array_15">array</a> int}) : <a href="#intvl_110">intvl</a> -&gt; <a href="#intvl_110">intvl</a> -&gt; bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_513">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+    <span class="keyword2">ensures</span>  { <a href="#totalStrictOrder_383">totalStrictOrder</a> result }
+  =
+    <span class="keyword1">fun</span> x -&gt; <span class="keyword1">fun</span> y -&gt; a[x.<a href="#elt_111">elt</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>] <a href="int.html#infix%20%3C_21">&lt;</a> a[y.<a href="#elt_111">elt</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>]
+  <span class="comment">(* `-one` because `a` is on [0..n-1] whereas `intvl` is [`one`..`size`] *)</span>
+</pre>
+<div class="info"><p>Strict total order associated to any permutation stored in an array of integers.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_524">rank_cancel</a> lt : bool
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+  =
+    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_513">size</a> <span class="keyword1">do</span>
+      <span class="keyword1">let</span> j = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span>
+      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#eq_intvl_123">eq_intvl</a> (<a href="#rank_395">rank</a> lt (<a href="#unrank_480">unrank</a> lt j)) j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
+    <span class="keyword1">done</span>;
+    <span class="keyword1">true</span>
+
+  <span class="keyword1">let</span> <a name="rank_cancel_array_533">rank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_513">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  =
+    <a href="#rank_cancel_524">rank_cancel</a> (<a href="#array_sto_517">array_sto</a> a)
+</pre>
+<div class="info"><p>Tested function.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_test_539">rank_cancel_test</a>
+  =
+    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_513">size</a>) <a href="#rank_cancel_array_533">rank_cancel_array</a>)
+</pre>
+<div class="info"><p>First test</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_544">unrank_cancel</a> lt : bool
+    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_383">totalStrictOrder</a> lt }
+  =
+    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_513">size</a> <span class="keyword1">do</span>
+      <span class="keyword1">let</span> j = <a href="#int2intvl_133">int2intvl</a> i <span class="keyword1">in</span>
+      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#eq_intvl_123">eq_intvl</a> (<a href="#unrank_480">unrank</a> lt (<a href="#rank_395">rank</a> lt j)) j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
+    <span class="keyword1">done</span>;
+    <span class="keyword1">true</span>
+
+  <span class="keyword1">let</span> <a name="unrank_cancel_array_553">unrank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_513">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  =
+    <a href="#unrank_cancel_544">unrank_cancel</a> (<a href="#array_sto_517">array_sto</a> a)
+
+  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_test_558">unrank_cancel_test</a> =
+    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_513">size</a>) <a href="#unrank_cancel_array_553">unrank_cancel_array</a>)
+</pre>
+<div class="info"><p>Second test</p>
+</div><pre><span class="keyword1">end</span></pre>
+
+</div>
+<hr>
+<p>Generated by why3doc 1.3.3</p>
+</body>
+</html>

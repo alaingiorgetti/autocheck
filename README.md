@@ -46,7 +46,7 @@ docs
 How to use this code?
 =====================
 
-See [EG20, Sections 4 and 5] and the Makefile for the different possible actions.
+See [EG20, Sections 4 and 5], [Gio21] and the Makefile for the different possible actions.
 
 The command to test WhyML properties is
 
@@ -116,3 +116,5 @@ the SMT solvers.'
 The first three changes reflect the replacement of Why3 1.2.0 by Why3 1.3.1 in
 the tool, to solve a couple of issues related to the contents of the older
 release 1.2.0 of Why3.
+
+[Gio21] A. Giorgetti. Théories de permutations avec Why3. 17 pages. Submitted in October 2020.

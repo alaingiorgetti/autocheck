@@ -105,7 +105,7 @@ module RandomTests = struct
 
   (** array type *)
 
-  (* TODO: length make *)
+  (* TODO: length make, as in TestExamples.mlw *)
 
   (* Read-write axioms *)
   let rw_axioms (a: int array) (i: int) (j: int) (v: int) : bool =
@@ -167,6 +167,7 @@ let (rw_axioms_arbitrary : (int array * int * int * int) arbitrary) =
       rw_axioms_arbitrary
       wrong_rw_axioms_quad
   ]
+
 end
 
 (** Enumerative tests *)

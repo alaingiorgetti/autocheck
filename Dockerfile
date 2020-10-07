@@ -66,11 +66,11 @@ RUN . ~/.profile \
 RUN . ~/.profile && opam depext --install alt-ergo=2.2.0
 
 ######################################################################
-# Installation of Why3 1.3.1 from git                                #
+# Installation of Why3 1.3.3 from git                                #
 ######################################################################
 
-# 10. Why3 1.3.1 from git
-RUN . ~/.profile && git clone -b 1.3.1 https://gitlab.inria.fr/why3/why3.git
+# 10. Why3 1.3.3 from git
+RUN . ~/.profile && git clone -b 1.3.3 https://gitlab.inria.fr/why3/why3.git
 
 # 11. Compilation of Why3 (1/2)
 RUN . ~/.profile && cd why3 && autoconf && automake --add-missing; exit 0

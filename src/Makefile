@@ -12,7 +12,16 @@
 
 DIRS?= -L .
 
-.PHONY: ide ot wrt wet wt clean
+.PHONY: ABF20 ide ot wrt wet wt latex clean
+
+ABF20:
+	why3 ide $(DIRS) functions.mlw
+	why3 ide $(DIRS) ABF20.mlw
+	why3 session latex ABF20 functions
+	why3 doc $(DIRS) ABF20.mlw functions.mlw
+	@echo firefox ABF20.html functions.html
+	cd ABF20; make doc
+	bash ./why3_check.sh ABF20 Tests
 
 ide:
 	why3 ide $(DIRS) TestExamples.mlw
@@ -36,6 +45,9 @@ wet:
 
 # All tests for WhyML together
 wt: wrt wet
+
+latex:
+	why3 session latexEnum inverse_in_place TestExamples
 
 clean:
 	rm -f *.bak; rm -rf _build *.byte

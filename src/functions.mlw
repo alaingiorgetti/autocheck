@@ -1,0 +1,54 @@
+(* Proposition of renaming and improvements for the file function.mlw in stdlib:
+   1. File named functions.mlw instead of function.mlw, so that it can be used and cloned by
+      writing, e.g.,
+        functions.Injective
+      instead of
+        "function".Injective
+      which requires quotes because 'function' is a keyword in WhyML.
+   2. Lemmas instead of goals, so that they are available as properties when the modules
+      are cloned.
+   3. Clearer type, function, axiom and lemma names.
+   4. More comments. *)
+
+(** {1 Injections, surjections and bijections} *)
+
+module Injective
+
+  type t
+  type u
+  function t2u t : u
+  function u2t u : t
+
+  axiom Cancel : forall x : t. u2t (t2u x) = x
+  (** `u2t` is a left inverse for (or retraction of) `t2u`.
+      `t2u` is a right inverse for (or section of) `u2t`. *)
+
+  lemma Injec : forall x y : t. t2u x = t2u y -> x = y
+  (** A function with a left inverse is injective. *)
+
+  lemma Surjec : forall x : t. exists y : u. u2t y = x
+  (** A function with a right inverse is surjective. *)
+
+end
+
+
+module Surjective
+
+  type t
+  type u
+  function t2u t : u
+  function u2t u : t
+
+  clone export Injective with type t = u, type u = t,
+    function t2u = u2t, function u2t = t2u, axiom Cancel
+
+end
+
+
+module Bijective
+
+  clone export Injective with axiom Cancel
+  clone Surjective as Right with type t = t, type u = u,
+    function t2u = t2u, function u2t = u2t, axiom Cancel
+
+end

@@ -1,0 +1,562 @@
+(** {1 Formalization of [ABF20]}
+
+  [ABF20] Michael Albert, Mathilde Bouvel, and Valentin Féray. Two first-order logics of 
+  permutations. Journal of Combinatorial Theory, Series A, 171:105158, April 2020.
+  https://arxiv.org/abs/1808.05459v2.
+*)
+
+(** {2 1. Extension of relations.mlw in stdlib, for TOOB} *)
+
+module Relation
+  type t
+  type u
+  predicate rel t u
+end
+
+module Determinism (* or PartialFunction *)
+  clone export Relation
+  axiom Deter : forall x:t. forall y z:u. rel x y -> rel x z -> y = z
+end
+
+module Functionality
+  clone export Determinism with axiom Deter
+  axiom Total : forall x:t. exists y:u. rel x y
+end
+
+module Injectivity
+  clone export Relation
+  axiom Injec : forall x y:t. forall a b:u. rel x a -> rel y b -> a = b -> x = y
+end
+
+module Surjectivity
+  clone export Relation
+  axiom Surjec : forall y:u. exists x:t. rel x y
+end
+
+module Bijectivity
+  clone export Functionality with axiom Deter, axiom Total
+  clone export Injectivity with type t = t, type u = u, predicate rel = rel, axiom Injec
+  clone export Surjectivity with type t = t, type u = u, predicate rel = rel, axiom Surjec
+end
+
+
+module MapRelation
+  use map.Map
+
+  type t
+  type u
+
+  (** Binary relation associated to any map, as its graph. *)
+  predicate map_rel (m: map t u) (x:t) (y:u) = (m[x] = y)
+
+  (** Let `m` be any map. *)
+  constant m: map t u
+
+  (** Let `m_graph` be its associated binary relation. *)
+  predicate m_graph (x:t) (y:u) = map_rel m x y
+ 
+  (** The graph of any map is a deterministic and total binary relation. *)
+  clone export Functionality with type t = t, type u = u, predicate rel = m_graph
+
+end
+
+
+(** {2 2. Extension of map.mlw in stdlib, for `ModelTOOB` and other modules} *)
+
+(* Injectivity, surjectivity and bijectivity for any maps, more general than
+   module `MapInjection` in map.mlw in stdlib. *)
+module MapInjSurjBij
+
+  use map.Map
+
+  predicate injective (m: map 'a 'b) = forall i j: 'a. m[i] = m[j] -> i = j
+  (** `injective m` is true when `m` is an injection *)
+
+  predicate surjective (m: map 'a 'b) = forall j: 'b. exists i: 'a. m[i] = j
+  (** `surjective m` is true when `m` is a surjection *)
+
+  predicate bijective (m: map 'a 'b) = injective m /\ surjective m
+
+  (* TODO: add more, by analogy with `MapInjection`. *)
+
+end
+
+
+(** {2 3. Proposal of extension of int.mlw in stdlib} *)
+
+module NumOfExt
+
+  use int.Int
+  use int.NumOf
+
+  lemma Numof_no_add:
+    forall p : int -> bool, a b c: int.
+    a <= b < c -> not p b -> numof p a c = numof p a b + numof p (b+1) c
+  (** More general than `Numof_left_no_add` in the stdlib. *)
+
+end
+
+
+(** {2 4. Type for {low,...,up}, proposed for a new file interval.mlw in stdlib} *)
+
+module Interval
+
+  use int.Int
+
+  val constant low : int (* lower interval endpoint *)
+  val constant  up : int (* upper interval endpoint *)
+  axiom Nonempty : low <= up
+
+  type intvl = {
+    elt: int
+  } invariant { low <= elt <= up }
+    by { elt = low }
+  (** Type for the interval of all integers between `low` and `up` included. *)
+  meta coercion function elt
+
+  axiom Elt_inj : forall n m:intvl. n.elt = m.elt -> n = m
+  (** This property holds for records without invariant, but cannot be proved here.
+      We admit it. It entails `Trichotomy` and lemma `eq_intvl_eq`. *)
+
+  let constant low_intvl : intvl = { elt = low }
+
+  let predicate eq_intvl (i j:intvl) = elt i = elt j
+  lemma eq_intvl_eq : forall i j: intvl. i = j <-> eq_intvl i j
+
+  let predicate lt_intvl (i j: intvl) = elt i < elt j
+
+  clone relations.TotalStrictOrder with
+  type t = intvl, predicate rel = lt_intvl
+  (** `lt_intvl` is a strict total order. `Trichotomy` is a consequence of axiom `Elt_inj` or lemma `eq_intvl_eq`. *)
+
+  (** Constructor of `intvl` inhabitants. *)
+  let function int2intvl (i:int) : intvl
+    requires { low <= i <= up }
+    ensures  { result.elt = i }
+  =
+    { elt = i }
+
+  lemma int2intvl_quasi_inj :
+    forall i j: int. low <= i <= up -> low <= j <= up -> int2intvl i = int2intvl j -> i = j
+
+  lemma int2intvlK: forall i:intvl. int2intvl (elt i) = i
+
+  use int.NumOf
+
+  let function numof_intvl (p: intvl -> bool) (a b: intvl) : int
+  =
+    numof (fun (i:int) -> low <= i <= up && p (int2intvl i)) a.elt b.elt
+  (** `numof_intvl p a b` is the number of integers n such that `a` <= n < `b` and `p n` holds. *)
+
+end
+
+
+(** {2 5. Theory Of One Bijection} *)
+
+module TOOB
+
+  type t
+  predicate rel t t (** `rel` is R in [ABF20]. *)
+
+  clone export Bijectivity with type t = t, type u = t, predicate rel = rel,
+    axiom Deter, axiom Total, axiom Injec, axiom Surjec
+
+end
+
+
+(** {2 6. Models for TOOB} *)
+
+(** Hereafter we only consider models where permutations are endomaps on the 
+    type `intvl` satisfying the predicate `MapInjSurjBij.bijective`. *)
+
+module ModelTOOB
+
+  use map.Map
+  use Interval
+  use MapInjSurjBij
+
+  (** Permutation model. *)
+  val constant sigma : map intvl intvl
+  axiom sigma_bij : bijective sigma
+
+  clone MapRelation with type t = intvl, type u = intvl, constant m = sigma, axiom Deter, axiom Total
+  (** Provides `map_rel` and the properties that the graph of `sigma` is deterministic and total. *)
+
+  (** Relation associated to the permutation `sigma`. *)
+  predicate rel_sigma (i j: intvl) = map_rel sigma i j
+
+  clone TOOB with type t = intvl, predicate rel = rel_sigma
+  (** The pair (`intvl`,`rel_sigma`) forms a (permutation) model of TOOB.
+      Axioms `Deter` and `Injec` are automatically proved with Alt-Ergo.
+      Axiom `Total` is proved by Z3.
+      Axiom `Surjec` is interactively proved with inline_all; CVC4 1.6. *)
+
+end
+
+
+module Proposition2
+
+  use map.Map
+  use Interval
+  use MapInjSurjBij
+
+  (** A model of TOOB is a pair (`a`,`rel`) satisfying all axioms of TOOB. *)
+  type a
+  predicate rel a a
+  clone TOOB with type t = a, predicate rel = rel,
+    axiom Deter, axiom Total, axiom Injec, axiom Surjec
+
+  (** The property that `a` is finite is specified by the existence of a pair of mutually
+      inverse bijections with `intvl`. *)
+  function a2intvl a : intvl 
+  function intvl2a intvl : a
+  clone functions.Bijective with type t = a, type u = intvl,
+    function t2u = a2intvl, function u2t = intvl2a, axiom Cancel, axiom Right.Cancel
+
+  (** Binary relation associated to any map, as its graph. *)
+  predicate map_rel (m: map 'a 'b) (x: 'a) (y: 'b) = (m[x] = y)
+
+  predicate isomorphic (sigma : map intvl intvl) =
+    exists f: map a intvl. bijective f /\ forall x y:a. rel x y <-> map_rel sigma (f x) (f y)
+  (** `(isomorphic sigma)` holds iff (`a`,`rel`) and (`intvl`,`map_rel sigma`) are isomorphic. *)
+
+  lemma ex_rel_permut : exists rel_permut : map intvl intvl.
+    forall i j:intvl. rel_permut[i] = j <-> rel (intvl2a i) (intvl2a j)
+  (** Key lemma for the proof of Proposition 2, proved with Coq. *)
+  
+  lemma Proposition2 : exists sigma: map intvl intvl. bijective sigma /\ isomorphic sigma
+  (** [ABF20, Proposition 2]. Not proved with Auto Level 3. Proved interactively with Why3.
+      Also proved interactively with Coq. *)
+
+end
+
+
+(** {2 7. Theory Of Two Orders} *)
+
+module TOTO
+
+  type t            (* type of positions and values    *)
+  predicate ltP t t (* strict total order on positions *)
+  predicate ltV t t (* strict total order on values    *)
+
+  clone export relations.TotalStrictOrder with type t = t, predicate rel = ltP,
+    axiom Trans, axiom Asymm, axiom Trichotomy
+
+  clone relations.TotalStrictOrder as V with type t = t, predicate rel = ltV,
+    axiom Trans, axiom Asymm, axiom Trichotomy
+
+end
+
+
+(** {2 8. Type for the arcs of the graph of a map} *)
+
+module MapGraph
+
+  use int.Int
+  use map.Map
+  use Interval
+
+  constant m : map intvl intvl
+  type arrow = {
+    source : intvl;
+    target : intvl
+  } invariant { target = m[source] }
+    by { source = low_intvl; target = m[low_intvl] } 
+  (** Type for (i,`m`(i)), for low <= i <= `up`. *)
+
+  axiom Source_inj: forall a b:arrow. source a = source b -> a = b
+  (** This axiom is necessary to prove lemmas `eq_arrow_eq` and `Trichotomy`. *)
+
+  predicate eq_arrow (a b: arrow) = a.source = b.source /\ a.target = b.target
+
+  lemma eq_arrow_eq: forall a b: arrow. eq_arrow a b <-> a = b
+  (** This lemma makes the semantics of `a = b` explicit. <- is easy.
+      -> is a consequence of axiom `Source_inj`. *)
+
+  let predicate lt_source (a b: arrow) = a.source.elt < b.source.elt
+  (** Strict total order on type `arrow`. *)
+
+  clone export relations.TotalStrictOrder with type t = arrow, predicate rel = lt_source
+
+end
+
+
+(** {2 9. Models for TOTO} *)
+
+module ModelTOTO
+
+  use int.Int
+  use map.Map
+  use Interval
+  use MapInjSurjBij
+
+  constant sigma : map intvl intvl
+  axiom sigma_bij : bijective sigma
+
+  clone MapGraph with constant m = sigma, axiom Source_inj (* provides type arrow, etc *)
+
+  let predicate ltP_sigma (a b: arrow) = a.source.elt < b.source.elt
+  let predicate ltV_sigma (a b: arrow) = a.target.elt < b.target.elt
+
+  clone TOTO with type t = arrow, predicate ltP = ltP_sigma, predicate ltV = ltV_sigma
+
+end
+
+
+(** {1 Restriction to integer intervals for simpler constructions and proofs}
+
+ Hereafter we abandon the objectives of fidelity to [ABF20] and universality of logic with any support set,
+ and we focus on types `int` and `intvl`. Thus we get shorter definitions and computable predicates and functions. *)
+
+
+(** {2 1. Strict Total Order on one integer Interval} *)
+
+module STOI
+
+  type t
+
+  val predicate lt t t
+  clone export relations.TotalStrictOrder with type t = t, predicate rel = lt,
+  axiom Trans, axiom Asymm, axiom Trichotomy
+
+  clone export relations.Irreflexive with type t = t, predicate rel = lt
+  (** Provides the property `Strict` that simplifies the Coq proof for `rank` injectivity.
+      Similar to the following lemma:
+  lemma Strict : forall i:intvl. not (lt i i)
+  *)
+
+end
+
+
+(** {2 2. Permutation model for STOI} *)
+
+module ModelSTOI
+
+  use int.Int
+  use map.Map
+  use MapInjSurjBij
+
+  val constant size : int
+
+  clone export Interval with val low = one, val up = size, axiom Nonempty, axiom Elt_inj
+  (** Defines `intvl` as the interval [`one`..`size`]. 1 <= size is assumed. *)
+
+  val constant sigma : map intvl intvl
+  axiom sigma_bij : bijective sigma
+
+  let predicate lt_sigma (i j: intvl) = lt_intvl (sigma i) (sigma j)
+
+  clone export STOI with type t = intvl, val lt = lt_sigma
+  (** The pair ([`one`..`size`],`lt_sigma`) is a (permutation) model of STOI.
+      Axioms Deter and Injec are automatically proved with Alt-Ergo.
+      Axiom Total is proved by Z3.
+      Axiom Surjec is automatically proved with inline_all; CVC4 1.6. *)
+
+end
+
+
+(** {2 3. Two mutually inverse permutations associated to a strict total order}
+
+ [ABF20] defines a rank function to associate a permutation to any model of TOTO, composed of two strict
+ total orders. Here we associate a rank function to any strict total order on `intvl`. Its type requires
+ a proof that its range is `intvl`. Then we prove (with Coq) that `rank lt` is injective for any strict
+ total order `lt`. Surjectivity is more difficult to prove. We implement a candidate for an inverse 
+ function (not in [ABF20]). This implementation goes through a constructive definition of the minimum 
+ and maximum of a strict total order on `intvl`, and of a function `succ`. *)
+
+module Rank
+
+  use ref.Ref
+  use int.Int
+  use int.NumOf
+  use map.Map
+  use NumOfExt
+  use MapInjSurjBij
+
+  clone export Interval with axiom Nonempty, axiom Elt_inj
+  (** All that follows is defined for the clones of `low`, `up` and `intvl` introduced here. *)
+
+  predicate trans (rel : intvl -> intvl -> bool) = forall x y z:intvl. rel x y -> rel y z -> rel x z
+  predicate asymm (rel : intvl -> intvl -> bool) = forall x y:intvl. rel x y -> not rel y x
+  predicate partialStrictOrder (rel : intvl -> intvl -> bool) = trans rel /\ asymm rel
+  predicate trichotomy (rel : intvl -> intvl -> bool) = forall x y:intvl. rel x y \/ rel y x \/ x = y
+  predicate totalStrictOrder (rel : intvl -> intvl -> bool) = partialStrictOrder rel /\ trichotomy rel
+
+  lemma irrefl :
+    forall lt : intvl -> intvl -> bool. asymm lt -> forall a:intvl. lt a a = false
+  (** `lt` is irreflexive. Helps the Why3 proofs for `numof_max` and the range of `rank`. *)
+
+  let predicate lt_int (lt : intvl -> intvl -> bool) (a:intvl) (j:int) = low <= j <= up && lt (int2intvl j) a
+
+  lemma numof_max : forall lt : intvl -> intvl -> bool. asymm lt ->
+    forall a:intvl. ((numof (lt_int lt a) low (up+1)) <= up - low)
+  (** Consequence of irreflexivity of `lt` and lemma `Numof_no_add`. *)
+
+  let function rank (lt : intvl -> intvl -> bool) (a:intvl) : intvl
+    requires { totalStrictOrder lt }
+  =
+    int2intvl ((numof (lt_int lt a) low (up+1)) + low)
+  (** `rank'vc` is about the range of `rank`.
+      The lower bound is a consequence of lemma int.NumOf.Numof_bounds.
+      The upper bound is a consequence of `numof_max`. *)
+
+  lemma rank_lt_inj: forall lt : intvl -> intvl -> bool. totalStrictOrder lt -> injective (rank lt)
+  (** If `lt` is a strict total order then `rank lt` is injective. *)
+
+  predicate is_max_left (lt : intvl -> intvl -> bool) (m:intvl) (i:int) =
+    forall j. low <= j <= i -> lt (int2intvl j) m \/ int2intvl j = m
+  (** `(is_max_left lt m i)` iff `m` is the maximum of `lt` on [`int2intvl low`..`int2intvl i`]. *)
+
+  predicate is_max (lt : intvl -> intvl -> bool) (m:intvl) = is_max_left lt m up
+  (** `(is_max lt m)` iff `m` is the maximum of `lt` on `intvl`. *)
+
+  let function max (lt : intvl -> intvl -> bool) : intvl
+    requires { totalStrictOrder lt }
+    ensures  { is_max lt result }
+  =
+    let ref m = int2intvl low in
+    for i = low+1 to up do
+      invariant { low+1 <= i <= up+1 }
+      invariant {is_max_left lt m (i-1) }
+      let j = int2intvl i in
+      if lt m j then m := j
+    done;
+    m
+  (** `max lt` is the maximal number for `lt`. *)
+
+  predicate is_succ_left (lt : intvl -> intvl -> bool) (a b:intvl) (i:int) = lt a b /\
+    forall j. low <= j <= i -> let c = int2intvl j in not (lt a c && lt c b)
+    (* lt c a \/ c.elt = a.elt \/ b.elt = c.elt \/ lt b c *)
+
+  predicate is_succ (lt : intvl -> intvl -> bool) (a b:intvl) = is_succ_left lt a b up
+  (* lt a b /\ forall c:intvl. lt c a \/ c.elt = a.elt \/ b.elt = c.elt \/ lt b c *)
+
+  let succ (lt : intvl -> intvl -> bool) (a:intvl) : intvl
+    requires { totalStrictOrder lt }
+    requires { a <> max lt }
+    ensures  { is_succ lt a result }
+  =
+    let ref i = low in
+    while i <= up && not (lt a (int2intvl i)) do  (* the first loop searches some (int2intvl i) greater than a *)
+      invariant { low <= i <= up+1 }
+      invariant { forall j. low <= j < i -> not (lt a (int2intvl j)) }
+      variant { up - i }
+      i := i+1
+    done;
+    let ref b = int2intvl i in (* candidate for (succ a) *)
+    i := i+1;
+    while i <= up do (* the second loop improves this (int2intvl i) greater than a *)
+      invariant { low <= i <= up+1 }
+      invariant { is_succ_left lt a b (i-1) } 
+      variant { up - i }
+      let k = int2intvl i in
+      if lt a k && lt k b then b := k;
+      i := i+1
+    done;
+    b
+  (** Proved with 'Auto Level 3'. *)
+
+  predicate is_min_left (lt : intvl -> intvl -> bool) (m:intvl) (i:int) =
+    forall j. low <= j <= i -> lt m (int2intvl j) \/ m = int2intvl j
+  (** `(is_min_left lt m i)` iff `m` is the minimum of `lt` on [`int2intvl low`..`int2intvl i`]. *)
+
+  predicate is_min (lt : intvl -> intvl -> bool) (m:intvl) = is_min_left lt m up
+  (** `(is_min lt m)` iff `m` is the minimum of `lt` on `intvl`. *)
+
+  let function min (lt : intvl -> intvl -> bool) : intvl
+    requires { totalStrictOrder lt }
+    ensures  { is_min lt result }
+  =
+    let ref m = int2intvl low in
+    for i = low+1 to up do
+      invariant { low+1 <= i <= up+1 }
+      invariant { is_min_left lt m (i-1) }
+      let j = int2intvl i in
+      if lt j m then m := j
+    done;
+    m
+  (** `min lt` is the minimal number for `lt`. *)
+
+  let function unrank (lt : intvl -> intvl -> bool) (i:intvl) : intvl
+    requires { totalStrictOrder lt }
+  =
+    let ref k = i.elt in
+    let ref j = min lt in
+    while not (eq_intvl j (max lt)) && k > low do
+      variant { k+1-low }
+      j := succ lt j;
+      k := k-1
+    done;
+    j
+
+  lemma   rank_ltK: forall lt. forall i. rank lt (unrank lt i) = i
+  (** `rank lt` is the left inverse of `unrank lt`. Tested in the module `Tests' below. *)
+
+  lemma unrank_ltK: forall lt. forall i. unrank lt (rank lt i) = i
+  (** `unrank lt` is the left inverse of `rank lt`. Tested in the module `Tests' below. *)
+
+end
+
+
+(** {2 4. Tests of two cancellation lemmas} *)
+
+module Tests
+
+  use int.Int
+  use array.Array
+  (* Enumerative testing tool *)
+  use Enum.Permutation
+  use SCheck.Test
+  use SCheck.SCheck
+  use SCheck.SCheck_runner
+
+  let constant size : int = 6
+  clone export Rank with val low = one, val up = size, axiom Nonempty, axiom Elt_inj
+
+  (** Strict total order associated to any permutation stored in an array of integers. *)
+  let function array_sto (a:{array int}) : intvl -> intvl -> bool
+    requires { a.length = size /\ is_permut a }
+    ensures  { totalStrictOrder result }
+  =
+    fun x -> fun y -> a[x.elt-one] < a[y.elt-one]
+  (* `-one` because `a` is on [0..n-1] whereas `intvl` is [`one`..`size`] *)
+
+  let function rank_cancel lt : bool
+    requires { totalStrictOrder lt }
+  =
+    for i = one to size do
+      let j = int2intvl i in
+      if not (eq_intvl (rank lt (unrank lt j)) j) then return false
+    done;
+    true
+
+  let rank_cancel_array (a:array int) : bool
+    requires { a.length = size /\ is_permut a }
+  =
+    rank_cancel (array_sto a)
+  (** Tested function. *)
+
+  let function rank_cancel_test
+  =
+    SCheck_runner.run_tests (Test.make SCheck.(permut_of_size size) rank_cancel_array)
+  (** First test *)
+     
+  let function unrank_cancel lt : bool
+    requires { totalStrictOrder lt }
+  = 
+    for i = one to size do
+      let j = int2intvl i in
+      if not (eq_intvl (unrank lt (rank lt j)) j) then return false
+    done;
+    true
+
+  let unrank_cancel_array (a:array int) : bool
+    requires { a.length = size /\ is_permut a }
+  =
+    unrank_cancel (array_sto a)
+
+  let function unrank_cancel_test =
+    SCheck_runner.run_tests (Test.make SCheck.(permut_of_size size) unrank_cancel_array)
+  (** Second test *)
+
+end
