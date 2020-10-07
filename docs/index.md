@@ -15,7 +15,11 @@ Project home
 
 Please use github issue manager at [https://github.com/alaingiorgetti/autocheck/issues](https://github.com/alaingiorgetti/autocheck/issues) to report any installation or usage issues.
 
+Applications
+============
 
+- Enumerative testing of function properties in theories of permutations with Why3,
+ [code documentation](https://alaingiorgetti.github.io/autocheck/permutTheory/index.html)
 
 
 Documentation
@@ -30,8 +34,6 @@ Springer, Cham (2019), [https://doi.org/10.1007/978-3-030-31280-0_10](https://do
 
 [EG20] C. Erard and A. Giorgetti. Random and Enumerative Testing for OCaml and 
 WhyML Properties. 20 pages. Submitted the 20th August 2020. [Author version](https://alaingiorgetti.github.io/autocheck/EG20.pdf).
-
-[Gio21] A. Giorgetti. Théories de permutations avec Why3. 17 pages. Submitted in October 2020.
 
 Copyright (C) 2019-2020 Clotilde Erard and Alain Giorgetti
 
