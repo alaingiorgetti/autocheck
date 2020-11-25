@@ -13,83 +13,59 @@ Parameter up: Numbers.BinNums.Z.
 
 Axiom Nonempty : (low <= up)%Z.
 
-Axiom intvl : Type.
-Parameter intvl_WhyType : WhyType intvl.
-Existing Instance intvl_WhyType.
+Axiom bint : Type.
+Parameter bint_WhyType : WhyType bint.
+Existing Instance bint_WhyType.
 
-Parameter elt: intvl -> Numbers.BinNums.Z.
+Parameter to_int: bint -> Numbers.BinNums.Z.
 
-Axiom intvl'invariant :
-  forall (self:intvl), (low <= (elt self))%Z /\ ((elt self) <= up)%Z.
+Axiom bint'invariant :
+  forall (self:bint), (low <= (to_int self))%Z /\ ((to_int self) <= up)%Z.
 
-Axiom Elt_inj : forall (n:intvl) (m:intvl), ((elt n) = (elt m)) -> (n = m).
+Parameter low_bint: bint.
 
-Parameter low_intvl: intvl.
+Axiom low_bint'def : ((to_int low_bint) = low).
 
-Axiom low_intvl'def : ((elt low_intvl) = low).
-
-(* Why3 assumption *)
-Definition eq_intvl (i:intvl) (j:intvl) : Prop := ((elt i) = (elt j)).
-
-Axiom eq_intvl_eq : forall (i:intvl) (j:intvl), (i = j) <-> eq_intvl i j.
+Axiom Extensionality :
+  forall (i:bint) (j:bint), ((to_int i) = (to_int j)) -> (i = j).
 
 (* Why3 assumption *)
-Definition lt_intvl (i:intvl) (j:intvl) : Prop := ((elt i) < (elt j))%Z.
+Definition lt_bint (i:bint) (j:bint) : Prop := ((to_int i) < (to_int j))%Z.
 
 Axiom Trans :
-  forall (x:intvl) (y:intvl) (z:intvl), lt_intvl x y -> lt_intvl y z ->
-  lt_intvl x z.
+  forall (x:bint) (y:bint) (z:bint), lt_bint x y -> lt_bint y z ->
+  lt_bint x z.
 
-Axiom Asymm : forall (x:intvl) (y:intvl), lt_intvl x y -> ~ lt_intvl y x.
+Axiom Asymm : forall (x:bint) (y:bint), lt_bint x y -> ~ lt_bint y x.
 
 Axiom Trichotomy :
-  forall (x:intvl) (y:intvl), lt_intvl x y \/ lt_intvl y x \/ (x = y).
+  forall (x:bint) (y:bint), lt_bint x y \/ lt_bint y x \/ (x = y).
 
-Parameter int2intvl: Numbers.BinNums.Z -> intvl.
+Parameter of_int: Numbers.BinNums.Z -> bint.
 
-Axiom int2intvl'spec :
+Axiom of_int'spec :
   forall (i:Numbers.BinNums.Z), (low <= i)%Z /\ (i <= up)%Z ->
-  ((elt (int2intvl i)) = i).
+  ((to_int (of_int i)) = i).
 
-Axiom int2intvl_quasi_inj :
+Axiom of_int_quasi_inj :
   forall (i:Numbers.BinNums.Z) (j:Numbers.BinNums.Z),
   (low <= i)%Z /\ (i <= up)%Z -> (low <= j)%Z /\ (j <= up)%Z ->
-  ((int2intvl i) = (int2intvl j)) -> (i = j).
+  ((of_int i) = (of_int j)) -> (i = j).
+
+Axiom of_intK : forall (i:bint), ((of_int (to_int i)) = i).
 
 Parameter result:
-  (intvl -> Init.Datatypes.bool) -> Numbers.BinNums.Z -> Init.Datatypes.bool.
+  (bint -> Init.Datatypes.bool) -> Numbers.BinNums.Z -> Init.Datatypes.bool.
 
 Axiom result'def :
-  forall (p:intvl -> Init.Datatypes.bool) (i:Numbers.BinNums.Z),
+  forall (p:bint -> Init.Datatypes.bool) (i:Numbers.BinNums.Z),
   ((result p i) = Init.Datatypes.true) <->
-  ((low <= i)%Z /\ (i <= up)%Z) /\ ((p (int2intvl i)) = Init.Datatypes.true).
+  ((low <= i)%Z /\ (i <= up)%Z) /\ ((p (of_int i)) = Init.Datatypes.true).
 
 (* Why3 assumption *)
-Definition numof_intvl (p:intvl -> Init.Datatypes.bool) (a:intvl) (b:intvl) :
+Definition numof_bint (p:bint -> Init.Datatypes.bool) (a:bint) (b:bint) :
     Numbers.BinNums.Z :=
-  int.NumOf.numof (result p) (elt a) (elt b).
-
-(* Why3 assumption *)
-Definition for_all_sub_pred (p:intvl -> Init.Datatypes.bool)
-    (l:Numbers.BinNums.Z) (u:Numbers.BinNums.Z) : Prop :=
-  forall (i:Numbers.BinNums.Z), (l <= i)%Z /\ (i <= u)%Z ->
-  ((p (int2intvl i)) = Init.Datatypes.true).
-
-Parameter for_all_sub:
-  (intvl -> Init.Datatypes.bool) -> Numbers.BinNums.Z -> Numbers.BinNums.Z ->
-  Init.Datatypes.bool.
-
-Axiom for_all_sub'spec :
-  forall (p:intvl -> Init.Datatypes.bool) (l:Numbers.BinNums.Z)
-    (u:Numbers.BinNums.Z),
-  (low <= l)%Z /\ (l <= up)%Z -> (low <= u)%Z /\ (u <= up)%Z ->
-  ((for_all_sub p l u) = Init.Datatypes.true) <-> for_all_sub_pred p l u.
-
-Parameter for_all: (intvl -> Init.Datatypes.bool) -> Init.Datatypes.bool.
-
-Axiom for_all'spec :
-  forall (p:intvl -> Init.Datatypes.bool),
-  ((for_all p) = Init.Datatypes.true) <-> for_all_sub_pred p low up.
+  int.NumOf.numof (result p) (to_int a) (to_int b).
 
 (* Why3 assumption *)
 Definition injective {a:Type} {a_WT:WhyType a} {b:Type} {b_WT:WhyType b}
@@ -118,27 +94,26 @@ Axiom Deter :
 Axiom Total : forall (x:a), exists y:a, rel x y.
 
 Axiom Injec :
-  forall (x:a) (y:a), forall (a1:a) (b:a), rel x a1 -> rel y b -> (a1 = b) ->
-  (x = y).
+  forall (x:a) (y:a), forall (a1:a), rel x a1 -> rel y a1 -> (x = y).
 
 Axiom Surjec : forall (y:a), exists x:a, rel x y.
 
-Parameter a2intvl: a -> intvl.
+Parameter a2bint: a -> bint.
 
-Parameter intvl2a: intvl -> a.
+Parameter bint2a: bint -> a.
 
-Axiom Cancel : forall (x:a), ((intvl2a (a2intvl x)) = x).
+Axiom Cancel : forall (x:a), ((bint2a (a2bint x)) = x).
 
-Axiom Injec1 : forall (x:a) (y:a), ((a2intvl x) = (a2intvl y)) -> (x = y).
+Axiom Injec1 : forall (x:a) (y:a), ((a2bint x) = (a2bint y)) -> (x = y).
 
-Axiom Surjec1 : forall (x:a), exists y:intvl, ((intvl2a y) = x).
+Axiom Surjec1 : forall (x:a), exists y:bint, ((bint2a y) = x).
 
-Axiom Cancel1 : forall (x:intvl), ((a2intvl (intvl2a x)) = x).
+Axiom Cancel1 : forall (x:bint), ((a2bint (bint2a x)) = x).
 
 Axiom Injec2 :
-  forall (x:intvl) (y:intvl), ((intvl2a x) = (intvl2a y)) -> (x = y).
+  forall (x:bint) (y:bint), ((bint2a x) = (bint2a y)) -> (x = y).
 
-Axiom Surjec2 : forall (x:intvl), exists y:a, ((a2intvl y) = x).
+Axiom Surjec2 : forall (x:bint), exists y:a, ((a2bint y) = x).
 
 (* Why3 assumption *)
 Definition map_rel {a1:Type} {a1_WT:WhyType a1} {b:Type} {b_WT:WhyType b}
@@ -146,21 +121,21 @@ Definition map_rel {a1:Type} {a1_WT:WhyType a1} {b:Type} {b_WT:WhyType b}
   ((m x) = y).
 
 (* Why3 assumption *)
-Definition isomorphic (sigma:intvl -> intvl) : Prop :=
-  exists f:a -> intvl,
+Definition isomorphic (sigma:bint -> bint) : Prop :=
+  exists f:a -> bint,
   bijective f /\ (forall (x:a) (y:a), rel x y <-> map_rel sigma (f x) (f y)).
 
 (* Why3 goal *)
 Theorem ex_rel_permut :
-  exists rel_permut:intvl -> intvl,
-  forall (i:intvl) (j:intvl),
-  ((rel_permut i) = j) <-> rel (intvl2a i) (intvl2a j).
+  exists rel_permut:bint -> bint,
+  forall (i:bint) (j:bint),
+  ((rel_permut i) = j) <-> rel (bint2a i) (bint2a j).
 Proof.
 destruct (Logic.ClassicalEpsilon.choice rel Total) as [f H].
-exists (fun i => a2intvl (f (intvl2a i))).
+exists (fun i => a2bint (f (bint2a i))).
 split; intro F.
 - rewrite <- F. rewrite Cancel. apply H.
 - apply eq_sym. apply Injec2. rewrite Cancel.
-  apply Deter with (x := intvl2a i). apply F. apply H.
+  apply Deter with (x := bint2a i). apply F. apply H.
 Qed.
 

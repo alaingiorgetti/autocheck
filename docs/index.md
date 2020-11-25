@@ -18,10 +18,12 @@ Please use github issue manager at [https://github.com/alaingiorgetti/autocheck/
 Applications
 ============
 
-- Enumerative testing of function properties in theories of permutations with Why3:
+- Enumerative testing of function properties in theories of permutations with Why3: 
+ [functions.mlw](https://github.com/alaingiorgetti/autocheck/blob/master/src/functions.mlw), 
+ [ABF20.mlw](https://github.com/alaingiorgetti/autocheck/blob/master/src/ABF20.mlw), 
  [code documentation](https://alaingiorgetti.github.io/autocheck/permutTheory/index.html), 
- [Why3 proof results for ABF20.mlw](https://alaingiorgetti.github.io/autocheck/permutTheory/ABF20/why3session.html), 
- [Why3 proof results for functions.mlw](https://alaingiorgetti.github.io/autocheck/permutTheory/functions/why3session.html).
+ [Why3 proof results for functions.mlw](https://alaingiorgetti.github.io/autocheck/permutTheory/functions/why3session.html), 
+ [Why3 proof results for ABF20.mlw](https://alaingiorgetti.github.io/autocheck/permutTheory/ABF20/why3session.html).
 
 Documentation
 =============

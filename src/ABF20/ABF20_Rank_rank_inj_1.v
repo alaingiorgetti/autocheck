@@ -48,132 +48,125 @@ Parameter up: Numbers.BinNums.Z.
 
 Axiom Nonempty : (low <= up)%Z.
 
-Axiom intvl : Type.
-Parameter intvl_WhyType : WhyType intvl.
-Existing Instance intvl_WhyType.
+Axiom bint : Type.
+Parameter bint_WhyType : WhyType bint.
+Existing Instance bint_WhyType.
 
-Parameter elt: intvl -> Numbers.BinNums.Z.
+Parameter to_int: bint -> Numbers.BinNums.Z.
 
-Axiom intvl'invariant :
-  forall (self:intvl), (low <= (elt self))%Z /\ ((elt self) <= up)%Z.
+Axiom bint'invariant :
+  forall (self:bint), (low <= (to_int self))%Z /\ ((to_int self) <= up)%Z.
 
-Axiom Elt_inj : forall (n:intvl) (m:intvl), ((elt n) = (elt m)) -> (n = m).
+Parameter low_bint: bint.
 
-Parameter low_intvl: intvl.
+Axiom low_bint'def : ((to_int low_bint) = low).
 
-Axiom low_intvl'def : ((elt low_intvl) = low).
-
-(* Why3 assumption *)
-Definition eq_intvl (i:intvl) (j:intvl) : Prop := ((elt i) = (elt j)).
-
-Axiom eq_intvl_eq : forall (i:intvl) (j:intvl), (i = j) <-> eq_intvl i j.
+Axiom Extensionality :
+  forall (i:bint) (j:bint), ((to_int i) = (to_int j)) -> (i = j).
 
 (* Why3 assumption *)
-Definition lt_intvl (i:intvl) (j:intvl) : Prop := ((elt i) < (elt j))%Z.
+Definition lt_bint (i:bint) (j:bint) : Prop := ((to_int i) < (to_int j))%Z.
 
 Axiom Trans :
-  forall (x:intvl) (y:intvl) (z:intvl), lt_intvl x y -> lt_intvl y z ->
-  lt_intvl x z.
+  forall (x:bint) (y:bint) (z:bint), lt_bint x y -> lt_bint y z ->
+  lt_bint x z.
 
-Axiom Asymm : forall (x:intvl) (y:intvl), lt_intvl x y -> ~ lt_intvl y x.
+Axiom Asymm : forall (x:bint) (y:bint), lt_bint x y -> ~ lt_bint y x.
 
 Axiom Trichotomy :
-  forall (x:intvl) (y:intvl), lt_intvl x y \/ lt_intvl y x \/ (x = y).
+  forall (x:bint) (y:bint), lt_bint x y \/ lt_bint y x \/ (x = y).
 
-Parameter int2intvl: Numbers.BinNums.Z -> intvl.
+Parameter of_int: Numbers.BinNums.Z -> bint.
 
-Axiom int2intvl'spec :
+Axiom of_int'spec :
   forall (i:Numbers.BinNums.Z), (low <= i)%Z /\ (i <= up)%Z ->
-  ((elt (int2intvl i)) = i).
+  ((to_int (of_int i)) = i).
 
-Axiom int2intvl_quasi_inj :
+Axiom of_int_quasi_inj :
   forall (i:Numbers.BinNums.Z) (j:Numbers.BinNums.Z),
   (low <= i)%Z /\ (i <= up)%Z -> (low <= j)%Z /\ (j <= up)%Z ->
-  ((int2intvl i) = (int2intvl j)) -> (i = j).
+  ((of_int i) = (of_int j)) -> (i = j).
 
-Axiom int2intvlK : forall (i:intvl), ((int2intvl (elt i)) = i).
+Axiom of_intK : forall (i:bint), ((of_int (to_int i)) = i).
 
 Parameter result:
-  (intvl -> Init.Datatypes.bool) -> Numbers.BinNums.Z -> Init.Datatypes.bool.
+  (bint -> Init.Datatypes.bool) -> Numbers.BinNums.Z -> Init.Datatypes.bool.
 
 Axiom result'def :
-  forall (p:intvl -> Init.Datatypes.bool) (i:Numbers.BinNums.Z),
+  forall (p:bint -> Init.Datatypes.bool) (i:Numbers.BinNums.Z),
   ((result p i) = Init.Datatypes.true) <->
-  ((low <= i)%Z /\ (i <= up)%Z) /\ ((p (int2intvl i)) = Init.Datatypes.true).
+  ((low <= i)%Z /\ (i <= up)%Z) /\ ((p (of_int i)) = Init.Datatypes.true).
 
 (* Why3 assumption *)
-Definition numof_intvl (p:intvl -> Init.Datatypes.bool) (a:intvl) (b:intvl) :
+Definition numof_bint (p:bint -> Init.Datatypes.bool) (a:bint) (b:bint) :
     Numbers.BinNums.Z :=
-  int.NumOf.numof (result p) (elt a) (elt b).
+  int.NumOf.numof (result p) (to_int a) (to_int b).
 
 (* Why3 assumption *)
-Definition trans (rel:intvl -> intvl -> Init.Datatypes.bool) : Prop :=
-  forall (x:intvl) (y:intvl) (z:intvl), ((rel x y) = Init.Datatypes.true) ->
+Definition trans (rel:bint -> bint -> Init.Datatypes.bool) : Prop :=
+  forall (x:bint) (y:bint) (z:bint), ((rel x y) = Init.Datatypes.true) ->
   ((rel y z) = Init.Datatypes.true) -> ((rel x z) = Init.Datatypes.true).
 
 (* Why3 assumption *)
-Definition asymm (rel:intvl -> intvl -> Init.Datatypes.bool) : Prop :=
-  forall (x:intvl) (y:intvl), ((rel x y) = Init.Datatypes.true) ->
+Definition asymm (rel:bint -> bint -> Init.Datatypes.bool) : Prop :=
+  forall (x:bint) (y:bint), ((rel x y) = Init.Datatypes.true) ->
   ~ ((rel y x) = Init.Datatypes.true).
 
 (* Why3 assumption *)
-Definition partialStrictOrder (rel:intvl -> intvl -> Init.Datatypes.bool) :
+Definition partialStrictOrder (rel:bint -> bint -> Init.Datatypes.bool) :
     Prop :=
   trans rel /\ asymm rel.
 
 (* Why3 assumption *)
-Definition trichotomy (rel:intvl -> intvl -> Init.Datatypes.bool) : Prop :=
-  forall (x:intvl) (y:intvl),
+Definition trichotomy (rel:bint -> bint -> Init.Datatypes.bool) : Prop :=
+  forall (x:bint) (y:bint),
   ((rel x y) = Init.Datatypes.true) \/
   ((rel y x) = Init.Datatypes.true) \/ (x = y).
 
 (* Why3 assumption *)
-Definition totalStrictOrder (rel:intvl -> intvl -> Init.Datatypes.bool) :
-    Prop :=
+Definition totalStrictOrder (rel:bint -> bint -> Init.Datatypes.bool) : Prop :=
   partialStrictOrder rel /\ trichotomy rel.
 
 Axiom irrefl :
-  forall (lt:intvl -> intvl -> Init.Datatypes.bool), asymm lt ->
-  forall (a:intvl), ((lt a a) = Init.Datatypes.false).
+  forall (lt:bint -> bint -> Init.Datatypes.bool), asymm lt ->
+  forall (a:bint), ((lt a a) = Init.Datatypes.false).
 
 (* Why3 assumption *)
-Definition lt_int (lt:intvl -> intvl -> Init.Datatypes.bool) (a:intvl)
+Definition lt_int (lt:bint -> bint -> Init.Datatypes.bool) (a:bint)
     (j:Numbers.BinNums.Z) : Prop :=
-  ((low <= j)%Z /\ (j <= up)%Z) /\
-  ((lt (int2intvl j) a) = Init.Datatypes.true).
+  ((low <= j)%Z /\ (j <= up)%Z) /\ ((lt (of_int j) a) = Init.Datatypes.true).
 
 Parameter lt_int_closure:
-  (intvl -> intvl -> Init.Datatypes.bool) ->
-  intvl -> Numbers.BinNums.Z -> Init.Datatypes.bool.
+  (bint -> bint -> Init.Datatypes.bool) ->
+  bint -> Numbers.BinNums.Z -> Init.Datatypes.bool.
 
 Axiom lt_int_closure_def :
-  forall (y:intvl -> intvl -> Init.Datatypes.bool) (y1:intvl)
+  forall (y:bint -> bint -> Init.Datatypes.bool) (y1:bint)
     (y2:Numbers.BinNums.Z),
   ((lt_int_closure y y1 y2) = Init.Datatypes.true) <-> lt_int y y1 y2.
 
 Axiom numof_max :
-  forall (lt:intvl -> intvl -> Init.Datatypes.bool), asymm lt ->
-  forall (a:intvl),
+  forall (lt:bint -> bint -> Init.Datatypes.bool), asymm lt ->
+  forall (a:bint),
   ((int.NumOf.numof (lt_int_closure lt a) low (up + 1%Z)%Z) <=
    (up - low)%Z)%Z.
 
-Parameter rank: (intvl -> intvl -> Init.Datatypes.bool) -> intvl -> intvl.
+Parameter rank: (bint -> bint -> Init.Datatypes.bool) -> bint -> bint.
 
 Axiom rank'def :
-  forall (lt:intvl -> intvl -> Init.Datatypes.bool) (a:intvl),
+  forall (lt:bint -> bint -> Init.Datatypes.bool) (a:bint),
   totalStrictOrder lt ->
   ((rank lt a) =
-   (int2intvl
+   (of_int
     ((int.NumOf.numof (lt_int_closure lt a) low (up + 1%Z)%Z) + low)%Z)).
 
 Require Import Lia.
 
 (* Why3 goal *)
 Theorem rank_lt_inj :
-  forall (lt:intvl -> intvl -> Init.Datatypes.bool), totalStrictOrder lt ->
+  forall (lt:bint -> bint -> Init.Datatypes.bool), totalStrictOrder lt ->
   injective
-  ((fun (y0:intvl -> intvl -> Init.Datatypes.bool) (y1:intvl) => rank y0 y1)
-   lt).
+  ((fun (y0:bint -> bint -> Init.Datatypes.bool) (y1:bint) => rank y0 y1) lt).
 (* Why3 intros lt h1. *)
 Proof.
 intros lt Sto.
@@ -189,8 +182,8 @@ destruct (Tricho i j) as [L|[G|E]].
 - { (* L : lt i j = true *)
  assert (NumOf.numof (lt_int_closure lt i) low (up + 1) < NumOf.numof (lt_int_closure lt j) low (up + 1))%Z as A.
  - {
-  apply NumOf.numof_change_some with (i := elt i); auto.
-  - destruct (intvl'invariant i). lia.
+  apply NumOf.numof_change_some with (i := to_int i); auto.
+  - destruct (bint'invariant i). lia.
   - {
    intros k K I. apply lt_int_closure_def in I. apply lt_int_closure_def.
    unfold lt_int. split.
@@ -200,21 +193,20 @@ destruct (Tricho i j) as [L|[G|E]].
   }
   - {
    intro C. apply lt_int_closure_def in C. unfold lt_int in C.
-   rewrite int2intvlK in C.
+   rewrite of_intK in C.
    rewrite irrefl in C.
    - destruct C as [D E]. discriminate E.
    - apply Asymm.
   }
   - {
    apply lt_int_closure_def. unfold lt_int. split.
-   - apply (intvl'invariant i).
-   - rewrite int2intvlK. apply L.
+   - apply (bint'invariant i).
+   - rewrite of_intK. apply L.
   }
  }
  - {
-  intro H. apply eq_intvl_eq in H.
-  apply eq_intvl_eq in H.
-  apply int2intvl_quasi_inj in H.
+  intro H. 
+  apply of_int_quasi_inj in H.
   - lia.
   - {
    split.
@@ -247,8 +239,8 @@ destruct (Tricho i j) as [L|[G|E]].
 - { (* G : lt j i = true *)
  assert (NumOf.numof (lt_int_closure lt j) low (up + 1) < NumOf.numof (lt_int_closure lt i) low (up + 1))%Z as A.
  - {
-  apply NumOf.numof_change_some with (i := elt j); auto.
-  - destruct (intvl'invariant j). lia.
+  apply NumOf.numof_change_some with (i := to_int j); auto.
+  - destruct (bint'invariant j). lia.
   - {
    intros k K I. apply lt_int_closure_def in I. apply lt_int_closure_def.
    unfold lt_int. split.
@@ -258,21 +250,20 @@ destruct (Tricho i j) as [L|[G|E]].
   }
   - {
    intro C. apply lt_int_closure_def in C. unfold lt_int in C.
-   rewrite int2intvlK in C.
+   rewrite of_intK in C.
    rewrite irrefl in C.
    - destruct C as [D E]. discriminate E.
    - apply Asymm.
   }
   - {
    apply lt_int_closure_def. unfold lt_int. split.
-   - apply intvl'invariant.
-   - rewrite int2intvlK. apply G.
+   - apply bint'invariant.
+   - rewrite of_intK. apply G.
   }
  }
  - {
-  intro H. apply eq_intvl_eq in H.
-  apply eq_intvl_eq in H.
-  apply int2intvl_quasi_inj in H.
+  intro H.
+  apply of_int_quasi_inj in H.
   - lia.
   - {
    split.
