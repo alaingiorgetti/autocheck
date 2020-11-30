@@ -487,26 +487,45 @@
  </transf>
  </goal>
  <goal name="rank_ltK">
- <proof prover="2"><result status="timeout" time="1.00" steps="1566466"/></proof>
+ <proof prover="2"><result status="timeout" time="1.00" steps="1094904"/></proof>
  <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
- <proof prover="4"><result status="timeout" time="1.00" steps="150281"/></proof>
+ <proof prover="4"><result status="timeout" time="1.00" steps="161244"/></proof>
  <transf name="split_vc" >
   <goal name="rank_ltK.0">
-  <proof prover="2"><result status="timeout" time="1.00" steps="1813391"/></proof>
+  <proof prover="2"><result status="timeout" time="1.00" steps="1116168"/></proof>
   <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
-  <proof prover="4"><result status="timeout" time="1.00" steps="150237"/></proof>
+  <proof prover="4"><result status="timeout" time="1.00" steps="153999"/></proof>
   </goal>
  </transf>
  </goal>
- <goal name="unrank_ltK">
- <proof prover="2"><result status="timeout" time="1.00" steps="1939067"/></proof>
- <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
- <proof prover="4"><result status="timeout" time="1.00" steps="134198"/></proof>
- <transf name="split_vc" >
-  <goal name="unrank_ltK.0">
-  <proof prover="2" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="46599555"/></proof>
-  <proof prover="3"><result status="timeout" time="5.00"/></proof>
-  <proof prover="4" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="1812855"/></proof>
+ <goal name="unrank_ltK" proved="true">
+ <proof prover="0"><path name="ABF20_Rank_unrank_ltK_1.v"/><result status="valid" time="0.36"/></proof>
+ <proof prover="2"><result status="valid" time="0.09" steps="151568"/></proof>
+ <proof prover="3" timelimit="1"><result status="valid" time="0.30" steps="202"/></proof>
+ <proof prover="4"><result status="timeout" time="1.00" steps="111148"/></proof>
+ <transf name="intros" proved="true" arg1="lt, H, i">
+  <goal name="unrank_ltK.0" proved="true">
+  <transf name="assert" proved="true" arg1="(injective ((fun (y0:bint -&gt; bint -&gt; bool) (y1:bint) -&gt; rank y0 y1) @ lt))">
+   <goal name="unrank_ltK.0.0" expl="asserted formula" proved="true">
+   <transf name="apply" proved="true" arg1="rank_lt_inj">
+    <goal name="unrank_ltK.0.0.0" expl="apply premises" proved="true">
+    <transf name="apply" proved="true" arg1="H">
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="unrank_ltK.0.1" proved="true">
+   <transf name="unfold" proved="true" arg1="injective" arg2="in" arg3="h">
+    <goal name="unrank_ltK.0.1.0" proved="true">
+    <transf name="apply" proved="true" arg1="h">
+     <goal name="unrank_ltK.0.1.0.0" expl="apply premises" proved="true">
+     <proof prover="3"><result status="valid" time="0.01" steps="30"/></proof>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
   </goal>
  </transf>
  </goal>
@@ -516,30 +535,30 @@
  <proof prover="3"><result status="valid" time="0.04" steps="200"/></proof>
  </goal>
  <goal name="rank_cancel&#39;vc" expl="VC for rank_cancel" proved="true">
- <proof prover="2"><result status="valid" time="0.04" steps="94724"/></proof>
+ <proof prover="2"><result status="valid" time="0.04" steps="95006"/></proof>
  <proof prover="3" timelimit="1"><result status="valid" time="0.02" steps="10"/></proof>
- <proof prover="4"><result status="valid" time="0.10" steps="24915"/></proof>
+ <proof prover="4"><result status="valid" time="0.10" steps="25015"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="rank_cancel&#39;vc.0" expl="precondition" proved="true">
-  <proof prover="2"><result status="valid" time="0.02" steps="23362"/></proof>
+  <proof prover="2"><result status="valid" time="0.02" steps="23434"/></proof>
   <proof prover="3" timelimit="1"><result status="valid" time="0.02" steps="10"/></proof>
-  <proof prover="4"><result status="valid" time="0.07" steps="23287"/></proof>
+  <proof prover="4"><result status="valid" time="0.07" steps="23405"/></proof>
   <transf name="split_vc" proved="true" >
    <goal name="rank_cancel&#39;vc.0.0" expl="precondition" proved="true">
    <proof prover="3"><result status="valid" time="0.02" steps="10"/></proof>
-   <proof prover="4"><result status="valid" time="0.07" steps="23280"/></proof>
+   <proof prover="4"><result status="valid" time="0.07" steps="23398"/></proof>
    </goal>
    <goal name="rank_cancel&#39;vc.0.1" expl="precondition" proved="true">
-   <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4528"/></proof>
+   <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4536"/></proof>
    <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="10"/></proof>
-   <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="23280"/></proof>
+   <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="23398"/></proof>
    <transf name="inline_goal" proved="true" >
     <goal name="rank_cancel&#39;vc.0.1.0" expl="precondition" proved="true">
     <transf name="split_all_full" proved="true" >
      <goal name="rank_cancel&#39;vc.0.1.0.0" expl="precondition" proved="true">
-     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="97101"/></proof>
+     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="97383"/></proof>
      <proof prover="3"><result status="valid" time="0.02" steps="10"/></proof>
-     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="25964"/></proof>
+     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="26064"/></proof>
      </goal>
     </transf>
     </goal>
@@ -548,40 +567,40 @@
   </transf>
   </goal>
   <goal name="rank_cancel&#39;vc.1" expl="precondition" proved="true">
-  <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4502"/></proof>
-  <proof prover="3" memlimit="2000"><result status="valid" time="0.01" steps="12"/></proof>
-  <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="23348"/></proof>
+  <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4510"/></proof>
+  <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="12"/></proof>
+  <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.06" steps="23466"/></proof>
   <transf name="inline_goal" proved="true" >
    <goal name="rank_cancel&#39;vc.1.0" expl="precondition" proved="true">
    <transf name="split_all_full" proved="true" >
     <goal name="rank_cancel&#39;vc.1.0.0" expl="VC for rank_cancel" proved="true">
-    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="98454"/></proof>
+    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98794"/></proof>
     <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="14"/></proof>
-    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.13" steps="26065"/></proof>
+    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26165"/></proof>
     <transf name="inline_goal" proved="true" >
      <goal name="rank_cancel&#39;vc.1.0.0.0" expl="VC for rank_cancel" proved="true">
      <transf name="split_all_full" proved="true" >
       <goal name="rank_cancel&#39;vc.1.0.0.0.0" expl="VC for rank_cancel" proved="true">
-      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98570"/></proof>
-      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="40"/></proof>
-      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.14" steps="27920"/></proof>
+      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.05" steps="98910"/></proof>
+      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="44"/></proof>
+      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.11" steps="28020"/></proof>
       <transf name="inline_goal" proved="true" >
        <goal name="rank_cancel&#39;vc.1.0.0.0.0.0" expl="VC for rank_cancel" proved="true">
-       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="107987"/></proof>
-       <proof prover="3"><result status="valid" time="0.03" steps="57"/></proof>
-       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28392"/></proof>
+       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="108331"/></proof>
+       <proof prover="3"><result status="valid" time="0.02" steps="61"/></proof>
+       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="28492"/></proof>
        </goal>
       </transf>
       </goal>
       <goal name="rank_cancel&#39;vc.1.0.0.0.1" expl="VC for rank_cancel" proved="true">
-      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="98564"/></proof>
-      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="38"/></proof>
-      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.13" steps="27914"/></proof>
+      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98904"/></proof>
+      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="42"/></proof>
+      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.12" steps="28014"/></proof>
       <transf name="inline_goal" proved="true" >
        <goal name="rank_cancel&#39;vc.1.0.0.0.1.0" expl="VC for rank_cancel" proved="true">
-       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="107904"/></proof>
-       <proof prover="3"><result status="valid" time="0.03" steps="54"/></proof>
-       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.13" steps="28315"/></proof>
+       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.04" steps="108248"/></proof>
+       <proof prover="3"><result status="valid" time="0.02" steps="58"/></proof>
+       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28415"/></proof>
        </goal>
       </transf>
       </goal>
@@ -590,14 +609,14 @@
     </transf>
     </goal>
     <goal name="rank_cancel&#39;vc.1.0.1" expl="VC for rank_cancel" proved="true">
-    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.03" steps="98524"/></proof>
-    <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="14"/></proof>
-    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26065"/></proof>
+    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98864"/></proof>
+    <proof prover="3" memlimit="2000"><result status="valid" time="0.01" steps="14"/></proof>
+    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26165"/></proof>
     <transf name="inline_goal" proved="true" >
      <goal name="rank_cancel&#39;vc.1.0.1.0" expl="VC for rank_cancel" proved="true">
-     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.04" steps="101778"/></proof>
-     <proof prover="3"><result status="valid" time="0.02" steps="48"/></proof>
-     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28269"/></proof>
+     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="102122"/></proof>
+     <proof prover="3"><result status="valid" time="0.02" steps="52"/></proof>
+     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="28369"/></proof>
      </goal>
     </transf>
     </goal>
@@ -606,40 +625,40 @@
   </transf>
   </goal>
   <goal name="rank_cancel&#39;vc.2" expl="precondition" proved="true">
-  <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4502"/></proof>
-  <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="12"/></proof>
-  <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.06" steps="23348"/></proof>
+  <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.02" steps="4510"/></proof>
+  <proof prover="3" memlimit="2000"><result status="valid" time="0.01" steps="12"/></proof>
+  <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="23466"/></proof>
   <transf name="inline_goal" proved="true" >
    <goal name="rank_cancel&#39;vc.2.0" expl="precondition" proved="true">
    <transf name="split_all_full" proved="true" >
     <goal name="rank_cancel&#39;vc.2.0.0" expl="VC for rank_cancel" proved="true">
-    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98454"/></proof>
+    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="98794"/></proof>
     <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="14"/></proof>
-    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26065"/></proof>
+    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.13" steps="26165"/></proof>
     <transf name="inline_goal" proved="true" >
      <goal name="rank_cancel&#39;vc.2.0.0.0" expl="VC for rank_cancel" proved="true">
      <transf name="split_all_full" proved="true" >
       <goal name="rank_cancel&#39;vc.2.0.0.0.0" expl="VC for rank_cancel" proved="true">
-      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.05" steps="98570"/></proof>
-      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="40"/></proof>
-      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.11" steps="27920"/></proof>
+      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98910"/></proof>
+      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="44"/></proof>
+      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.14" steps="28020"/></proof>
       <transf name="inline_goal" proved="true" >
        <goal name="rank_cancel&#39;vc.2.0.0.0.0.0" expl="VC for rank_cancel" proved="true">
-       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="107987"/></proof>
-       <proof prover="3"><result status="valid" time="0.02" steps="57"/></proof>
-       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="28392"/></proof>
+       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="108331"/></proof>
+       <proof prover="3"><result status="valid" time="0.02" steps="61"/></proof>
+       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28492"/></proof>
        </goal>
       </transf>
       </goal>
       <goal name="rank_cancel&#39;vc.2.0.0.0.1" expl="VC for rank_cancel" proved="true">
-      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98564"/></proof>
-      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="38"/></proof>
-      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.12" steps="27914"/></proof>
+      <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.07" steps="98904"/></proof>
+      <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="42"/></proof>
+      <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.13" steps="28014"/></proof>
       <transf name="inline_goal" proved="true" >
        <goal name="rank_cancel&#39;vc.2.0.0.0.1.0" expl="VC for rank_cancel" proved="true">
-       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.04" steps="107904"/></proof>
-       <proof prover="3"><result status="valid" time="0.02" steps="54"/></proof>
-       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28315"/></proof>
+       <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="108248"/></proof>
+       <proof prover="3"><result status="valid" time="0.03" steps="58"/></proof>
+       <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.13" steps="28415"/></proof>
        </goal>
       </transf>
       </goal>
@@ -648,14 +667,14 @@
     </transf>
     </goal>
     <goal name="rank_cancel&#39;vc.2.0.1" expl="VC for rank_cancel" proved="true">
-    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.04" steps="98524"/></proof>
-    <proof prover="3" memlimit="2000"><result status="valid" time="0.01" steps="14"/></proof>
-    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26065"/></proof>
+    <proof prover="2" timelimit="5" memlimit="2000"><result status="valid" time="0.03" steps="98864"/></proof>
+    <proof prover="3" memlimit="2000"><result status="valid" time="0.02" steps="14"/></proof>
+    <proof prover="4" timelimit="5" memlimit="2000"><result status="valid" time="0.09" steps="26165"/></proof>
     <transf name="inline_goal" proved="true" >
      <goal name="rank_cancel&#39;vc.2.0.1.0" expl="VC for rank_cancel" proved="true">
-     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.05" steps="101778"/></proof>
-     <proof prover="3"><result status="valid" time="0.02" steps="48"/></proof>
-     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.11" steps="28269"/></proof>
+     <proof prover="2" timelimit="30" memlimit="4000"><result status="valid" time="0.04" steps="102122"/></proof>
+     <proof prover="3"><result status="valid" time="0.02" steps="52"/></proof>
+     <proof prover="4" timelimit="30" memlimit="4000"><result status="valid" time="0.12" steps="28369"/></proof>
      </goal>
     </transf>
     </goal>
@@ -669,59 +688,59 @@
  <proof prover="3"><result status="valid" time="0.01" steps="3"/></proof>
  </goal>
  <goal name="rank_cancel_test&#39;vc" expl="VC for rank_cancel_test">
- <proof prover="2"><result status="timeout" time="1.00" steps="1566025"/></proof>
- <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
- <proof prover="4"><result status="timeout" time="1.00" steps="323935"/></proof>
+ <proof prover="2"><undone/></proof>
+ <proof prover="3" timelimit="1"><undone/></proof>
+ <proof prover="4"><undone/></proof>
  <transf name="split_vc" >
   <goal name="rank_cancel_test&#39;vc.0" expl="precondition">
-  <proof prover="2"><result status="timeout" time="1.00" steps="1661724"/></proof>
-  <proof prover="3" timelimit="1"><result status="timeout" time="1.00"/></proof>
-  <proof prover="4"><result status="timeout" time="1.00" steps="327298"/></proof>
+  <proof prover="2"><undone/></proof>
+  <proof prover="3" timelimit="1"><undone/></proof>
+  <proof prover="4"><undone/></proof>
   <transf name="split_vc" >
    <goal name="rank_cancel_test&#39;vc.0.0" expl="precondition">
-   <proof prover="2" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="7210681"/></proof>
-   <proof prover="3" memlimit="2000"><result status="timeout" time="5.00"/></proof>
-   <proof prover="4" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="2207357"/></proof>
+   <proof prover="2" timelimit="5" memlimit="2000"><undone/></proof>
+   <proof prover="3" memlimit="2000"><undone/></proof>
+   <proof prover="4" timelimit="5" memlimit="2000"><undone/></proof>
    <transf name="inline_goal" >
     <goal name="rank_cancel_test&#39;vc.0.0.0" expl="precondition">
     <transf name="split_all_full" >
      <goal name="rank_cancel_test&#39;vc.0.0.0.0" expl="precondition">
-     <proof prover="2" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="30353564"/></proof>
-     <proof prover="3" timelimit="30" memlimit="4000"><result status="timeout" time="30.00"/></proof>
-     <proof prover="4" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="10662071"/></proof>
+     <proof prover="2" timelimit="30" memlimit="4000"><undone/></proof>
+     <proof prover="3" timelimit="30" memlimit="4000"><undone/></proof>
+     <proof prover="4" timelimit="30" memlimit="4000"><undone/></proof>
      </goal>
     </transf>
     </goal>
    </transf>
    </goal>
    <goal name="rank_cancel_test&#39;vc.0.1" expl="precondition">
-   <proof prover="2" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="19152838"/></proof>
-   <proof prover="3" memlimit="2000"><result status="timeout" time="5.00"/></proof>
-   <proof prover="4" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="1969464"/></proof>
+   <proof prover="2" timelimit="5" memlimit="2000"><undone/></proof>
+   <proof prover="3" memlimit="2000"><undone/></proof>
+   <proof prover="4" timelimit="5" memlimit="2000"><undone/></proof>
    <transf name="inline_goal" >
     <goal name="rank_cancel_test&#39;vc.0.1.0" expl="precondition">
     <transf name="split_all_full" >
      <goal name="rank_cancel_test&#39;vc.0.1.0.0" expl="VC for rank_cancel_test">
-     <proof prover="2" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="12957999"/></proof>
-     <proof prover="3" memlimit="2000"><result status="timeout" time="5.00"/></proof>
-     <proof prover="4" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="1716650"/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000"><undone/></proof>
+     <proof prover="3" memlimit="2000"><undone/></proof>
+     <proof prover="4" timelimit="5" memlimit="2000"><undone/></proof>
      <transf name="inline_goal" >
       <goal name="rank_cancel_test&#39;vc.0.1.0.0.0" expl="VC for rank_cancel_test">
-      <proof prover="2" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="57399173"/></proof>
-      <proof prover="3" timelimit="30" memlimit="4000"><result status="timeout" time="30.00"/></proof>
-      <proof prover="4" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="11607066"/></proof>
+      <proof prover="2" timelimit="30" memlimit="4000"><undone/></proof>
+      <proof prover="3" timelimit="30" memlimit="4000"><undone/></proof>
+      <proof prover="4" timelimit="30" memlimit="4000"><undone/></proof>
       </goal>
      </transf>
      </goal>
      <goal name="rank_cancel_test&#39;vc.0.1.0.1" expl="VC for rank_cancel_test">
-     <proof prover="2" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="15830624"/></proof>
-     <proof prover="3" memlimit="2000"><result status="timeout" time="5.00"/></proof>
-     <proof prover="4" timelimit="5" memlimit="2000"><result status="timeout" time="5.00" steps="1771609"/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000"><undone/></proof>
+     <proof prover="3" memlimit="2000"><undone/></proof>
+     <proof prover="4" timelimit="5" memlimit="2000"><undone/></proof>
      <transf name="inline_goal" >
       <goal name="rank_cancel_test&#39;vc.0.1.0.1.0" expl="VC for rank_cancel_test">
-      <proof prover="2" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="76764970"/></proof>
-      <proof prover="3" timelimit="30" memlimit="4000"><result status="timeout" time="30.00"/></proof>
-      <proof prover="4" timelimit="30" memlimit="4000"><result status="timeout" time="30.00" steps="12893421"/></proof>
+      <proof prover="2" timelimit="30" memlimit="4000"><undone/></proof>
+      <proof prover="3" timelimit="30" memlimit="4000"><undone/></proof>
+      <proof prover="4" timelimit="30" memlimit="4000"><undone/></proof>
       </goal>
      </transf>
      </goal>
@@ -732,15 +751,6 @@
   </transf>
   </goal>
  </transf>
- </goal>
- <goal name="unrank_cancel&#39;vc" expl="VC for unrank_cancel" proved="true">
- <proof prover="3"><result status="valid" time="0.02" steps="10"/></proof>
- </goal>
- <goal name="unrank_cancel_array&#39;vc" expl="VC for unrank_cancel_array" proved="true">
- <proof prover="3"><result status="valid" time="0.01" steps="3"/></proof>
- </goal>
- <goal name="unrank_cancel_test&#39;vc" expl="VC for unrank_cancel_test">
- <proof prover="3"><result status="timeout" time="5.00"/></proof>
  </goal>
 </theory>
 </file>

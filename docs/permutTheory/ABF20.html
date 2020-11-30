@@ -477,16 +477,17 @@
     <span class="keyword1">done</span>;
     j
 
-  <span class="keyword1">lemma</span>   <a name="rank_ltK_485">rank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#rank_387">rank</a> lt (<a href="#unrank_473">unrank</a> lt i) = i
+  <span class="keyword1">lemma</span> <a name="rank_ltK_485">rank_ltK</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <span class="keyword1">forall</span> i. <a href="#rank_387">rank</a> lt (<a href="#unrank_473">unrank</a> lt i) = i
 </pre>
 <div class="info"><p><code>rank lt</code> is the left inverse of <code>unrank lt</code>. Tested in the module <code>Tests' below. </code></p>
-</div><pre>  <span class="keyword1">lemma</span> <a name="unrank_ltK_488">unrank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#unrank_473">unrank</a> lt (<a href="#rank_387">rank</a> lt i) = i
+</div><pre>  <span class="keyword1">lemma</span> <a name="unrank_ltK_488">unrank_ltK</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <span class="keyword1">forall</span> i. <a href="#unrank_473">unrank</a> lt (<a href="#rank_387">rank</a> lt i) = i
 </pre>
-<div class="info"><p><code>unrank lt</code> is the left inverse of <code>rank lt</code>. Tested in the module <code>Tests' below. </code></p>
+<div class="info"><p><code>unrank lt</code> is the left inverse of <code>rank lt</code>. Automatically proved with Alt-Ergo.
+      Also interactively deduced in Coq from lemmas rank_ltK and rank_lt_inj.</p>
 </div><pre><span class="keyword1">end</span>
 
 </pre>
-<h2>4. Tests of two cancellation lemmas</h2>
+<h2>4. Enumerative tests</h2>
 <pre><span class="keyword1">module</span> <a name="Tests_">Tests</a>
 
   <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
@@ -497,55 +498,37 @@
   <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_">SCheck</a>
   <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_runner_">SCheck_runner</a>
 
-  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="size_506">size</a> : int = 6
-  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Rank_">Rank</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_506">size</a>, <span class="keyword1">axiom</span> .
+  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="size_507">size</a> : int = 6
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Rank_">Rank</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_507">size</a>, <span class="keyword1">axiom</span> .
 
-  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="array_sto_510">array_sto</a> (a:{<a href="array.html#array_15">array</a> int}) : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="array_sto_511">array_sto</a> (a:{<a href="array.html#array_15">array</a> int}) : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_507">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
     <span class="keyword2">ensures</span>  { <a href="#totalStrictOrder_375">totalStrictOrder</a> result }
   =
     <span class="keyword1">fun</span> x -&gt; <span class="keyword1">fun</span> y -&gt; a[x.<a href="#to_int_111">to_int</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>] <a href="int.html#infix%20%3C_21">&lt;</a> a[y.<a href="#to_int_111">to_int</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>]
   <span class="comment">(* `-one` because `a` is on [0..n-1] whereas `bint` is [`one`..`size`] *)</span>
 </pre>
 <div class="info"><p>Strict total order associated to any permutation stored in an array of integers.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_517">rank_cancel</a> lt : bool
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_518">rank_cancel</a> lt : bool
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
   =
-    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_506">size</a> <span class="keyword1">do</span>
+    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_507">size</a> <span class="keyword1">do</span>
       <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
       <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#rank_387">rank</a> lt (<a href="#unrank_473">unrank</a> lt j) <a href="int.html#infix%20=_16">=</a> j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
     <span class="keyword1">done</span>;
     <span class="keyword1">true</span>
 
-  <span class="keyword1">let</span> <a name="rank_cancel_array_526">rank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  <span class="keyword1">let</span> <a name="rank_cancel_array_527">rank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_507">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
   =
-    <a href="#rank_cancel_517">rank_cancel</a> (<a href="#array_sto_510">array_sto</a> a)
+    <a href="#rank_cancel_518">rank_cancel</a> (<a href="#array_sto_511">array_sto</a> a)
 </pre>
 <div class="info"><p>Tested function.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_test_532">rank_cancel_test</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_test_533">rank_cancel_test</a>
   =
-    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_506">size</a>) <a href="#rank_cancel_array_526">rank_cancel_array</a>)
+    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_507">size</a>) <a href="#rank_cancel_array_527">rank_cancel_array</a>)
 </pre>
-<div class="info"><p>First test</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_537">unrank_cancel</a> lt : bool
-    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
-  =
-    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_506">size</a> <span class="keyword1">do</span>
-      <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
-      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#unrank_473">unrank</a> lt (<a href="#rank_387">rank</a> lt j) <a href="int.html#infix%20=_16">=</a> j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
-    <span class="keyword1">done</span>;
-    <span class="keyword1">true</span>
-
-  <span class="keyword1">let</span> <a name="unrank_cancel_array_546">unrank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
-  =
-    <a href="#unrank_cancel_537">unrank_cancel</a> (<a href="#array_sto_510">array_sto</a> a)
-
-  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_test_551">unrank_cancel_test</a> =
-    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_506">size</a>) <a href="#unrank_cancel_array_546">unrank_cancel_array</a>)
-</pre>
-<div class="info"><p>Second test</p>
+<div class="info"><p>Enumerative test of rank_ltK.</p>
 </div><pre><span class="keyword1">end</span></pre>
 
 </div>
