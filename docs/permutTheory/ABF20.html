@@ -16,7 +16,7 @@
   permutations. Journal of Combinatorial Theory, Series A, 171:105158, April 2020.
   https://arxiv.org/abs/1808.05459v2.
 </p>
-<h2>1. Extension of relations.mlw in stdlib, for TOOB</h2>
+<h2>1. Proposal of extension of relations.mlw in stdlib, for TOOB</h2>
 <pre><span class="keyword1">module</span> <a name="Relation_">Relation</a>
   <span class="keyword1">type</span> t
   <span class="keyword1">type</span> <a name="u_12">u</a>
@@ -70,7 +70,7 @@
 </div><pre><span class="keyword1">end</span>
 
 </pre>
-<h2>2. Extension of map.mlw in stdlib, for <code>ModelTOOB</code> and other modules</h2>
+<h2>2. Proposal of extension of map.mlw in stdlib, for <code>ModelTOOB</code> and other modules</h2>
 <pre><span class="comment">(* Injectivity, surjectivity and bijectivity for any maps, more general than
    module `MapInjection` in map.mlw in stdlib. *)</span>
 <span class="keyword1">module</span> <a name="MapInjSurjBij_">MapInjSurjBij</a>
@@ -379,7 +379,7 @@
     <span class="keyword1">forall</span> a:<a href="#bint_110">bint</a>. <a href="int.html#numof_317">numof</a> (<a href="#lt_int_381">lt_int</a> lt a) <a href="#low_106">low</a> (<a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1) <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> <a href="#low_106">low</a>
 </pre>
 <div class="info"><p>Consequence of irreflexivity of <code>lt</code> and lemma <code>Numof_no_add</code>.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_map_387">lt_map</a> (m: <a href="map.html#map_9">map</a> <a href="#bint_110">bint</a> <a href="#bint_110">bint</a>) (i j:<a href="#bint_110">bint</a>) = <a href="#lt_bint_126">lt_bint</a> (m i) (m j)
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_map_387">lt_map</a> (m: <a href="map.html#map_9">map</a> <a href="#bint_110">bint</a> <a href="#bint_110">bint</a>) (i j:<a href="#bint_110">bint</a>) = <a href="#lt_bint_126">lt_bint</a> m[i] m[j]
 
   <span class="keyword1">lemma</span> <a name="lt_map_bij_sto_389">lt_map_bij_sto</a>: <span class="keyword1">forall</span> sigma : <a href="map.html#map_9">map</a> <a href="#bint_110">bint</a> <a href="#bint_110">bint</a>. <a href="#bijective_78">bijective</a> sigma -&gt;
     <a href="#totalStrictOrder_375">totalStrictOrder</a> (<span class="keyword1">fun</span> i -&gt; <span class="keyword1">fun</span> j -&gt; <a href="#lt_map_387">lt_map</a> sigma i j)
