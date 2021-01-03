@@ -16,7 +16,7 @@
   permutations. Journal of Combinatorial Theory, Series A, 171:105158, April 2020.
   https://arxiv.org/abs/1808.05459v2.
 </p>
-<h2>1. Extension of relations.mlw in stdlib, for TOOB</h2>
+<h2>1. Proposal of extension of relations.mlw in stdlib, for TOOB</h2>
 <pre><span class="keyword1">module</span> <a name="Relation_">Relation</a>
   <span class="keyword1">type</span> t
   <span class="keyword1">type</span> <a name="u_12">u</a>
@@ -70,7 +70,7 @@
 </div><pre><span class="keyword1">end</span>
 
 </pre>
-<h2>2. Extension of map.mlw in stdlib, for <code>ModelTOOB</code> and other modules</h2>
+<h2>2. Proposal of extension of map.mlw in stdlib, for <code>ModelTOOB</code> and other modules</h2>
 <pre><span class="comment">(* Injectivity, surjectivity and bijectivity for any maps, more general than
    module `MapInjection` in map.mlw in stdlib. *)</span>
 <span class="keyword1">module</span> <a name="MapInjSurjBij_">MapInjSurjBij</a>
@@ -363,23 +363,30 @@
   <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Interval_">Interval</a> <span class="keyword1">with</span> <span class="keyword1">axiom</span> .
 </pre>
 <div class="info"><p>All that follows is defined for the clones of <code>low</code>, <code>up</code> and <code>bint</code> introduced here.</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="trans_371">trans</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y z:<a href="#bint_110">bint</a>. rel x y -&gt; rel y z -&gt; rel x z
-  <span class="keyword1">predicate</span> <a name="asymm_372">asymm</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#bint_110">bint</a>. rel x y -&gt; <span class="keyword1">not</span> rel y x
-  <span class="keyword1">predicate</span> <a name="partialStrictOrder_373">partialStrictOrder</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <a href="#trans_371">trans</a> rel /\ <a href="#asymm_372">asymm</a> rel
-  <span class="keyword1">predicate</span> <a name="trichotomy_374">trichotomy</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#bint_110">bint</a>. rel x y \/ rel y x \/ x = y
-  <span class="keyword1">predicate</span> <a name="totalStrictOrder_375">totalStrictOrder</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <a href="#partialStrictOrder_373">partialStrictOrder</a> rel /\ <a href="#trichotomy_374">trichotomy</a> rel
+</div><pre>  <span class="keyword1">predicate</span> <a name="trans_371">trans</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y z:'a. rel x y -&gt; rel y z -&gt; rel x z
+  <span class="keyword1">predicate</span> <a name="asymm_372">asymm</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y:'a. rel x y -&gt; <span class="keyword1">not</span> rel y x
+  <span class="keyword1">predicate</span> <a name="partialStrictOrder_373">partialStrictOrder</a> (rel : 'a -&gt; 'a -&gt; bool) = <a href="#trans_371">trans</a> rel /\ <a href="#asymm_372">asymm</a> rel
+  <span class="keyword1">predicate</span> <a name="trichotomy_374">trichotomy</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y:'a. rel x y \/ rel y x \/ x = y
+  <span class="keyword1">predicate</span> <a name="totalStrictOrder_375">totalStrictOrder</a> (rel : 'a -&gt; 'a -&gt; bool) = <a href="#partialStrictOrder_373">partialStrictOrder</a> rel /\ <a href="#trichotomy_374">trichotomy</a> rel
 
   <span class="keyword1">lemma</span> <a name="irrefl_377">irrefl</a> :
-    <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt; <span class="keyword1">forall</span> a:<a href="#bint_110">bint</a>. lt a a = <span class="keyword1">false</span>
+    <span class="keyword1">forall</span> lt : 'a -&gt; 'a -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt; <span class="keyword1">forall</span> a:'a. lt a a = <span class="keyword1">false</span>
 </pre>
-<div class="info"><p><code>lt</code> is irreflexive. Helps the Why3 proofs for <code>numof_max</code> and the range of <code>rank</code>.</p>
+<div class="info"><p>An asymmetric relation <code>lt</code> is irreflexive. Helps the proofs of <code>numof_max</code> and <code>rank'vc</code>.</p>
 </div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_int_381">lt_int</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) (j:int) = <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; lt (<a href="#of_int_133">of_int</a> j) a
 
   <span class="keyword1">lemma</span> <a name="numof_max_383">numof_max</a> : <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt;
     <span class="keyword1">forall</span> a:<a href="#bint_110">bint</a>. <a href="int.html#numof_317">numof</a> (<a href="#lt_int_381">lt_int</a> lt a) <a href="#low_106">low</a> (<a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1) <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> <a href="#low_106">low</a>
 </pre>
 <div class="info"><p>Consequence of irreflexivity of <code>lt</code> and lemma <code>Numof_no_add</code>.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_387">rank</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_map_387">lt_map</a> (m: <a href="map.html#map_9">map</a> <a href="#bint_110">bint</a> <a href="#bint_110">bint</a>) (i j:<a href="#bint_110">bint</a>) = <a href="#lt_bint_126">lt_bint</a> m[i] m[j]
+
+  <span class="keyword1">lemma</span> <a name="lt_map_bij_sto_389">lt_map_bij_sto</a>: <span class="keyword1">forall</span> sigma : <a href="map.html#map_9">map</a> <a href="#bint_110">bint</a> <a href="#bint_110">bint</a>. <a href="#bijective_78">bijective</a> sigma -&gt;
+    <a href="#totalStrictOrder_375">totalStrictOrder</a> (<span class="keyword1">fun</span> i -&gt; <span class="keyword1">fun</span> j -&gt; <a href="#lt_map_387">lt_map</a> sigma i j)
+</pre>
+<div class="info"><p>The image of a bijective application by <code>lt_map</code> is a total strict order.
+      Similar to ModelSTOI but with Boolean functions instead of predicates.</p>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_394">rank</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
   =
     <a href="#of_int_133">of_int</a> ((<a href="int.html#numof_317">numof</a> (<a href="#lt_int_381">lt_int</a> lt a) <a href="#low_106">low</a> (<a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1)) <a href="int.html#infix%20+_19">+</a> <a href="#low_106">low</a>)
@@ -387,42 +394,42 @@
 <div class="info"><p><code>rank'vc</code> is about the range of <code>rank</code>.
       The lower bound is a consequence of lemma int.NumOf.Numof_bounds.
       The upper bound is a consequence of <code>numof_max</code>.</p>
-</div><pre>  <span class="keyword1">lemma</span> <a name="rank_lt_inj_395">rank_lt_inj</a>: <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <a href="#injective_72">injective</a> (<a href="#rank_387">rank</a> lt)
+</div><pre>  <span class="keyword1">lemma</span> <a name="rank_lt_inj_402">rank_lt_inj</a>: <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <a href="#injective_72">injective</a> (<a href="#rank_394">rank</a> lt)
 </pre>
 <div class="info"><p>If <code>lt</code> is a strict total order then <code>rank lt</code> is injective.</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_left_398">is_max_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) (i:int) =
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_left_405">is_max_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) (i:int) =
     <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; lt (<a href="#of_int_133">of_int</a> j) m \/ <a href="#of_int_133">of_int</a> j = m
 </pre>
 <div class="info"><p><code>(is_max_left lt m i)</code> iff <code>m</code> is the maximum of <code>lt</code> on [<code>of_int low</code>..<code>of_int i</code>].</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_402">is_max</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) = <a href="#is_max_left_398">is_max_left</a> lt m <a href="#up_107">up</a>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_max_409">is_max</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) = <a href="#is_max_left_405">is_max_left</a> lt m <a href="#up_107">up</a>
 </pre>
 <div class="info"><p><code>(is_max lt m)</code> iff <code>m</code> is the maximum of <code>lt</code> on <code>bint</code>.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="max_405">max</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) : <a href="#bint_110">bint</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="max_412">max</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) : <a href="#bint_110">bint</a>
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
-    <span class="keyword2">ensures</span>  { <a href="#is_max_402">is_max</a> lt result }
+    <span class="keyword2">ensures</span>  { <a href="#is_max_409">is_max</a> lt result }
   =
     <span class="keyword1">let</span> <span class="keyword1">ref</span> m = <a href="#of_int_133">of_int</a> <a href="#low_106">low</a> <span class="keyword1">in</span>
     <span class="keyword1">for</span> i = <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <span class="keyword1">to</span> <a href="#up_107">up</a> <span class="keyword1">do</span>
       <span class="keyword2">invariant</span> { <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
-      <span class="keyword2">invariant</span> {<a href="#is_max_left_398">is_max_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword2">invariant</span> {<a href="#is_max_left_405">is_max_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
       <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
       <span class="keyword1">if</span> lt m j <span class="keyword1">then</span> m <a href="ref.html#infix%20:=_20">:=</a> j
     <span class="keyword1">done</span>;
     m
 </pre>
 <div class="info"><p><code>max lt</code> is the maximal number for <code>lt</code>.</p>
-</div><pre>  <span class="keyword1">lemma</span> <a name="max_is_max_419">max_is_max</a> : <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt;
-    <span class="keyword1">forall</span> a. a = <a href="#max_405">max</a> lt &lt;-&gt; <a href="#is_max_402">is_max</a> lt a
+</div><pre>  <span class="keyword1">lemma</span> <a name="max_is_max_426">max_is_max</a> : <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt;
+    <span class="keyword1">forall</span> a. a = <a href="#max_412">max</a> lt &lt;-&gt; <a href="#is_max_409">is_max</a> lt a
 
-  <span class="keyword1">predicate</span> <a name="is_succ_left_422">is_succ_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a b:<a href="#bint_110">bint</a>) (i:int) = lt a b /\
+  <span class="keyword1">predicate</span> <a name="is_succ_left_429">is_succ_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a b:<a href="#bint_110">bint</a>) (i:int) = lt a b /\
     <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; <span class="keyword1">let</span> c = <a href="#of_int_133">of_int</a> j <span class="keyword1">in</span> <span class="keyword1">not</span> (lt a c &amp;&amp; lt c b)
 
-  <span class="keyword1">predicate</span> <a name="is_succ_425">is_succ</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a b:<a href="#bint_110">bint</a>) = <a href="#is_succ_left_422">is_succ_left</a> lt a b <a href="#up_107">up</a>
+  <span class="keyword1">predicate</span> <a name="is_succ_432">is_succ</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a b:<a href="#bint_110">bint</a>) = <a href="#is_succ_left_429">is_succ_left</a> lt a b <a href="#up_107">up</a>
 
-  <span class="keyword1">let</span> <a name="succ_427">succ</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
+  <span class="keyword1">let</span> <a name="succ_434">succ</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
-    <span class="keyword2">requires</span> { a &lt;&gt; <a href="#max_405">max</a> lt }
-    <span class="keyword2">ensures</span>  { <a href="#is_succ_425">is_succ</a> lt a result }
+    <span class="keyword2">requires</span> { a &lt;&gt; <a href="#max_412">max</a> lt }
+    <span class="keyword2">ensures</span>  { <a href="#is_succ_432">is_succ</a> lt a result }
   =
     <span class="keyword1">let</span> <span class="keyword1">ref</span> i = <a href="#low_106">low</a> <span class="keyword1">in</span>
     <span class="keyword1">while</span> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; <span class="keyword1">not</span> (lt a (<a href="#of_int_133">of_int</a> i)) <span class="keyword1">do</span>  <span class="comment">(* the first loop searches some (of_int i) greater than a *)</span>
@@ -435,7 +442,7 @@
     i <a href="ref.html#infix%20:=_20">:=</a> i<a href="int.html#infix%20+_19">+</a>1;
     <span class="keyword1">while</span> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> <span class="keyword1">do</span> <span class="comment">(* the second loop improves this (of_int i) greater than a *)</span>
       <span class="keyword2">invariant</span> { <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
-      <span class="keyword2">invariant</span> { <a href="#is_succ_left_422">is_succ_left</a> lt a b (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword2">invariant</span> { <a href="#is_succ_left_429">is_succ_left</a> lt a b (i<a href="int.html#infix%20-_23">-</a>1) }
       <span class="keyword2">variant</span> { <a href="#up_107">up</a> <a href="int.html#infix%20-_23">-</a> i }
       <span class="keyword1">let</span> k = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
       <span class="keyword1">if</span> lt a k &amp;&amp; lt k b <span class="keyword1">then</span> b <a href="ref.html#infix%20:=_20">:=</a> k;
@@ -444,49 +451,56 @@
     b
 </pre>
 <div class="info"><p>Proved with &#39;Auto Level 3&#39;.</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_left_452">is_min_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) (i:int) =
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_left_459">is_min_left</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) (i:int) =
     <span class="keyword1">forall</span> j. <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> i -&gt; lt m (<a href="#of_int_133">of_int</a> j) \/ m = <a href="#of_int_133">of_int</a> j
 </pre>
 <div class="info"><p><code>(is_min_left lt m i)</code> iff <code>m</code> is the minimum of <code>lt</code> on [<code>of_int low</code>..<code>of_int i</code>].</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_456">is_min</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) = <a href="#is_min_left_452">is_min_left</a> lt m <a href="#up_107">up</a>
+</div><pre>  <span class="keyword1">predicate</span> <a name="is_min_463">is_min</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (m:<a href="#bint_110">bint</a>) = <a href="#is_min_left_459">is_min_left</a> lt m <a href="#up_107">up</a>
 </pre>
 <div class="info"><p><code>(is_min lt m)</code> iff <code>m</code> is the minimum of <code>lt</code> on <code>bint</code>.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="min_459">min</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) : <a href="#bint_110">bint</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="min_466">min</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) : <a href="#bint_110">bint</a>
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
-    <span class="keyword2">ensures</span>  { <a href="#is_min_456">is_min</a> lt result }
+    <span class="keyword2">ensures</span>  { <a href="#is_min_463">is_min</a> lt result }
   =
     <span class="keyword1">let</span> <span class="keyword1">ref</span> m = <a href="#of_int_133">of_int</a> <a href="#low_106">low</a> <span class="keyword1">in</span>
     <span class="keyword1">for</span> i = <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <span class="keyword1">to</span> <a href="#up_107">up</a> <span class="keyword1">do</span>
       <span class="keyword2">invariant</span> { <a href="#low_106">low</a><a href="int.html#infix%20+_19">+</a>1 <a href="int.html#infix%20%3C=_25">&lt;=</a> i <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a><a href="int.html#infix%20+_19">+</a>1 }
-      <span class="keyword2">invariant</span> { <a href="#is_min_left_452">is_min_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
+      <span class="keyword2">invariant</span> { <a href="#is_min_left_459">is_min_left</a> lt m (i<a href="int.html#infix%20-_23">-</a>1) }
       <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
       <span class="keyword1">if</span> lt j m <span class="keyword1">then</span> m <a href="ref.html#infix%20:=_20">:=</a> j
     <span class="keyword1">done</span>;
     m
 </pre>
 <div class="info"><p><code>min lt</code> is the minimal number for <code>lt</code>.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_473">unrank</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (i:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_480">unrank</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (i:<a href="#bint_110">bint</a>) : <a href="#bint_110">bint</a>
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
   =
     <span class="keyword1">let</span> <span class="keyword1">ref</span> k = i.<a href="#to_int_111">to_int</a> <span class="keyword1">in</span>
-    <span class="keyword1">let</span> <span class="keyword1">ref</span> j = <a href="#min_459">min</a> lt <span class="keyword1">in</span>
-    <span class="keyword1">while</span> <span class="keyword1">not</span> (j <a href="int.html#infix%20=_16">=</a> <a href="#max_405">max</a> lt) &amp;&amp; k <a href="int.html#infix%20%3E_24">&gt;</a> <a href="#low_106">low</a> <span class="keyword1">do</span>
+    <span class="keyword1">let</span> <span class="keyword1">ref</span> j = <a href="#min_466">min</a> lt <span class="keyword1">in</span>
+    <span class="keyword1">while</span> <span class="keyword1">not</span> (j <a href="int.html#infix%20=_16">=</a> <a href="#max_412">max</a> lt) &amp;&amp; k <a href="int.html#infix%20%3E_24">&gt;</a> <a href="#low_106">low</a> <span class="keyword1">do</span>
       <span class="keyword2">variant</span> { k<a href="int.html#infix%20+_19">+</a>1<a href="int.html#infix%20-_23">-</a><a href="#low_106">low</a> }
-      j <a href="ref.html#infix%20:=_20">:=</a> <a href="#succ_427">succ</a> lt j;
+      j <a href="ref.html#infix%20:=_20">:=</a> <a href="#succ_434">succ</a> lt j;
       k <a href="ref.html#infix%20:=_20">:=</a> k<a href="int.html#infix%20-_23">-</a>1
     <span class="keyword1">done</span>;
     j
 
-  <span class="keyword1">lemma</span>   <a name="rank_ltK_485">rank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#rank_387">rank</a> lt (<a href="#unrank_473">unrank</a> lt i) = i
+  <span class="keyword1">lemma</span> <a name="rank_ltK_492">rank_ltK</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <span class="keyword1">forall</span> i. <a href="#rank_394">rank</a> lt (<a href="#unrank_480">unrank</a> lt i) = i
 </pre>
 <div class="info"><p><code>rank lt</code> is the left inverse of <code>unrank lt</code>. Tested in the module <code>Tests' below. </code></p>
-</div><pre>  <span class="keyword1">lemma</span> <a name="unrank_ltK_488">unrank_ltK</a>: <span class="keyword1">forall</span> lt. <span class="keyword1">forall</span> i. <a href="#unrank_473">unrank</a> lt (<a href="#rank_387">rank</a> lt i) = i
+</div><pre>  <span class="keyword1">lemma</span> <a name="unrank_ltK_495">unrank_ltK</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <span class="keyword1">forall</span> i. <a href="#unrank_480">unrank</a> lt (<a href="#rank_394">rank</a> lt i) = i
 </pre>
-<div class="info"><p><code>unrank lt</code> is the left inverse of <code>rank lt</code>. Tested in the module <code>Tests' below. </code></p>
+<div class="info"><p><code>unrank lt</code> is the left inverse of <code>rank lt</code>. Automatically proved with Alt-Ergo.
+      Also interactively deduced in Coq from lemmas rank_ltK and rank_lt_inj.</p>
+</div><pre>  <span class="keyword1">lemma</span> <a name="lt_mapK_499">lt_mapK</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt; <a href="#lt_map_387">lt_map</a> (<a href="#rank_394">rank</a> lt) = lt
+
+  <span class="keyword1">lemma</span> <a name="Proposition1_501">Proposition1</a>: <span class="keyword1">forall</span> lt. <a href="#totalStrictOrder_375">totalStrictOrder</a> lt -&gt;
+    <span class="keyword1">exists</span> sigma. <a href="#bijective_78">bijective</a> sigma /\ <a href="#lt_map_387">lt_map</a> sigma = lt
+</pre>
+<div class="info"><p>Proposition 1 in [Gio21].</p>
 </div><pre><span class="keyword1">end</span>
 
 </pre>
-<h2>4. Tests of two cancellation lemmas</h2>
+<h2>4. Enumerative tests</h2>
 <pre><span class="keyword1">module</span> <a name="Tests_">Tests</a>
 
   <span class="keyword1">use</span> int.<a href="int.html#Int_">Int</a>
@@ -497,55 +511,37 @@
   <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_">SCheck</a>
   <span class="keyword1">use</span> SCheck.<a href="SCheck.html#SCheck_runner_">SCheck_runner</a>
 
-  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="size_506">size</a> : int = 6
-  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Rank_">Rank</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_506">size</a>, <span class="keyword1">axiom</span> .
+  <span class="keyword1">let</span> <span class="keyword1">constant</span> <a name="size_520">size</a> : int = 6
+  <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Rank_">Rank</a> <span class="keyword1">with</span> <span class="keyword1">val</span> <a href="#low_106">low</a> = <a href="int.html#one_14">one</a>, <span class="keyword1">val</span> <a href="#up_107">up</a> = <a href="#size_520">size</a>, <span class="keyword1">axiom</span> .
 
-  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="array_sto_510">array_sto</a> (a:{<a href="array.html#array_15">array</a> int}) : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="array_sto_524">array_sto</a> (a:{<a href="array.html#array_15">array</a> int}) : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_520">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
     <span class="keyword2">ensures</span>  { <a href="#totalStrictOrder_375">totalStrictOrder</a> result }
   =
     <span class="keyword1">fun</span> x -&gt; <span class="keyword1">fun</span> y -&gt; a[x.<a href="#to_int_111">to_int</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>] <a href="int.html#infix%20%3C_21">&lt;</a> a[y.<a href="#to_int_111">to_int</a><a href="int.html#infix%20-_23">-</a><a href="int.html#one_14">one</a>]
   <span class="comment">(* `-one` because `a` is on [0..n-1] whereas `bint` is [`one`..`size`] *)</span>
 </pre>
 <div class="info"><p>Strict total order associated to any permutation stored in an array of integers.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_517">rank_cancel</a> lt : bool
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_531">rank_cancel</a> lt : bool
     <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
   =
-    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_506">size</a> <span class="keyword1">do</span>
+    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_520">size</a> <span class="keyword1">do</span>
       <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
-      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#rank_387">rank</a> lt (<a href="#unrank_473">unrank</a> lt j) <a href="int.html#infix%20=_16">=</a> j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
+      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#rank_394">rank</a> lt (<a href="#unrank_480">unrank</a> lt j) <a href="int.html#infix%20=_16">=</a> j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
     <span class="keyword1">done</span>;
     <span class="keyword1">true</span>
 
-  <span class="keyword1">let</span> <a name="rank_cancel_array_526">rank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
+  <span class="keyword1">let</span> <a name="rank_cancel_array_540">rank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
+    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_520">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
   =
-    <a href="#rank_cancel_517">rank_cancel</a> (<a href="#array_sto_510">array_sto</a> a)
+    <a href="#rank_cancel_531">rank_cancel</a> (<a href="#array_sto_524">array_sto</a> a)
 </pre>
 <div class="info"><p>Tested function.</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_test_532">rank_cancel_test</a>
+</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="rank_cancel_test_546">rank_cancel_test</a>
   =
-    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_506">size</a>) <a href="#rank_cancel_array_526">rank_cancel_array</a>)
+    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_520">size</a>) <a href="#rank_cancel_array_540">rank_cancel_array</a>)
 </pre>
-<div class="info"><p>First test</p>
-</div><pre>  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_537">unrank_cancel</a> lt : bool
-    <span class="keyword2">requires</span> { <a href="#totalStrictOrder_375">totalStrictOrder</a> lt }
-  =
-    <span class="keyword1">for</span> i = <a href="int.html#one_14">one</a> <span class="keyword1">to</span> <a href="#size_506">size</a> <span class="keyword1">do</span>
-      <span class="keyword1">let</span> j = <a href="#of_int_133">of_int</a> i <span class="keyword1">in</span>
-      <span class="keyword1">if</span> <span class="keyword1">not</span> (<a href="#unrank_473">unrank</a> lt (<a href="#rank_387">rank</a> lt j) <a href="int.html#infix%20=_16">=</a> j) <span class="keyword1">then</span> <span class="keyword1">return</span> <span class="keyword1">false</span>
-    <span class="keyword1">done</span>;
-    <span class="keyword1">true</span>
-
-  <span class="keyword1">let</span> <a name="unrank_cancel_array_546">unrank_cancel_array</a> (a:<a href="array.html#array_15">array</a> int) : bool
-    <span class="keyword2">requires</span> { a.<a href="array.html#length_17">length</a> = <a href="#size_506">size</a> /\ <a href="Enum.html#is_permut_1185">is_permut</a> a }
-  =
-    <a href="#unrank_cancel_537">unrank_cancel</a> (<a href="#array_sto_510">array_sto</a> a)
-
-  <span class="keyword1">let</span> <span class="keyword1">function</span> <a name="unrank_cancel_test_551">unrank_cancel_test</a> =
-    SCheck_runner.<a href="SCheck.html#run_tests_129">run_tests</a> (Test.<a href="SCheck.html#make_97">make</a> SCheck.(<a href="SCheck.html#permut_of_size_75">permut_of_size</a> <a href="#size_506">size</a>) <a href="#unrank_cancel_array_546">unrank_cancel_array</a>)
-</pre>
-<div class="info"><p>Second test</p>
+<div class="info"><p>Enumerative test of rank_ltK.</p>
 </div><pre><span class="keyword1">end</span></pre>
 
 </div>

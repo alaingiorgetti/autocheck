@@ -363,16 +363,16 @@
   <span class="keyword1">clone</span> <span class="keyword1">export</span> <a href="#Interval_">Interval</a> <span class="keyword1">with</span> <span class="keyword1">axiom</span> .
 </pre>
 <div class="info"><p>All that follows is defined for the clones of <code>low</code>, <code>up</code> and <code>bint</code> introduced here.</p>
-</div><pre>  <span class="keyword1">predicate</span> <a name="trans_371">trans</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y z:<a href="#bint_110">bint</a>. rel x y -&gt; rel y z -&gt; rel x z
-  <span class="keyword1">predicate</span> <a name="asymm_372">asymm</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#bint_110">bint</a>. rel x y -&gt; <span class="keyword1">not</span> rel y x
-  <span class="keyword1">predicate</span> <a name="partialStrictOrder_373">partialStrictOrder</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <a href="#trans_371">trans</a> rel /\ <a href="#asymm_372">asymm</a> rel
-  <span class="keyword1">predicate</span> <a name="trichotomy_374">trichotomy</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <span class="keyword1">forall</span> x y:<a href="#bint_110">bint</a>. rel x y \/ rel y x \/ x = y
-  <span class="keyword1">predicate</span> <a name="totalStrictOrder_375">totalStrictOrder</a> (rel : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) = <a href="#partialStrictOrder_373">partialStrictOrder</a> rel /\ <a href="#trichotomy_374">trichotomy</a> rel
+</div><pre>  <span class="keyword1">predicate</span> <a name="trans_371">trans</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y z:'a. rel x y -&gt; rel y z -&gt; rel x z
+  <span class="keyword1">predicate</span> <a name="asymm_372">asymm</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y:'a. rel x y -&gt; <span class="keyword1">not</span> rel y x
+  <span class="keyword1">predicate</span> <a name="partialStrictOrder_373">partialStrictOrder</a> (rel : 'a -&gt; 'a -&gt; bool) = <a href="#trans_371">trans</a> rel /\ <a href="#asymm_372">asymm</a> rel
+  <span class="keyword1">predicate</span> <a name="trichotomy_374">trichotomy</a> (rel : 'a -&gt; 'a -&gt; bool) = <span class="keyword1">forall</span> x y:'a. rel x y \/ rel y x \/ x = y
+  <span class="keyword1">predicate</span> <a name="totalStrictOrder_375">totalStrictOrder</a> (rel : 'a -&gt; 'a -&gt; bool) = <a href="#partialStrictOrder_373">partialStrictOrder</a> rel /\ <a href="#trichotomy_374">trichotomy</a> rel
 
   <span class="keyword1">lemma</span> <a name="irrefl_377">irrefl</a> :
-    <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt; <span class="keyword1">forall</span> a:<a href="#bint_110">bint</a>. lt a a = <span class="keyword1">false</span>
+    <span class="keyword1">forall</span> lt : 'a -&gt; 'a -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt; <span class="keyword1">forall</span> a:'a. lt a a = <span class="keyword1">false</span>
 </pre>
-<div class="info"><p><code>lt</code> is irreflexive. Helps the Why3 proofs for <code>numof_max</code> and the range of <code>rank</code>.</p>
+<div class="info"><p>An asymmetric relation <code>lt</code> is irreflexive. Helps the proofs of <code>numof_max</code> and <code>rank'vc</code>.</p>
 </div><pre>  <span class="keyword1">let</span> <span class="keyword1">predicate</span> <a name="lt_int_381">lt_int</a> (lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool) (a:<a href="#bint_110">bint</a>) (j:int) = <a href="#low_106">low</a> <a href="int.html#infix%20%3C=_25">&lt;=</a> j <a href="int.html#infix%20%3C=_25">&lt;=</a> <a href="#up_107">up</a> &amp;&amp; lt (<a href="#of_int_133">of_int</a> j) a
 
   <span class="keyword1">lemma</span> <a name="numof_max_383">numof_max</a> : <span class="keyword1">forall</span> lt : <a href="#bint_110">bint</a> -&gt; <a href="#bint_110">bint</a> -&gt; bool. <a href="#asymm_372">asymm</a> lt -&gt;

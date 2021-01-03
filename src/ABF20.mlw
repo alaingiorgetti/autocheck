@@ -5,7 +5,7 @@
   https://arxiv.org/abs/1808.05459v2.
 *)
 
-(** {2 1. Extension of relations.mlw in stdlib, for TOOB} *)
+(** {2 1. Proposal of extension of relations.mlw in stdlib, for TOOB} *)
 
 module Relation
   type t
@@ -61,7 +61,7 @@ module MapRelation
 end
 
 
-(** {2 2. Extension of map.mlw in stdlib, for `ModelTOOB` and other modules} *)
+(** {2 2. Proposal of extension of map.mlw in stdlib, for `ModelTOOB` and other modules} *)
 
 (* Injectivity, surjectivity and bijectivity for any maps, more general than
    module `MapInjection` in map.mlw in stdlib. *)
@@ -368,15 +368,15 @@ module Rank
   clone export Interval with axiom .
   (** All that follows is defined for the clones of `low`, `up` and `bint` introduced here. *)
 
-  predicate trans (rel : bint -> bint -> bool) = forall x y z:bint. rel x y -> rel y z -> rel x z
-  predicate asymm (rel : bint -> bint -> bool) = forall x y:bint. rel x y -> not rel y x
-  predicate partialStrictOrder (rel : bint -> bint -> bool) = trans rel /\ asymm rel
-  predicate trichotomy (rel : bint -> bint -> bool) = forall x y:bint. rel x y \/ rel y x \/ x = y
-  predicate totalStrictOrder (rel : bint -> bint -> bool) = partialStrictOrder rel /\ trichotomy rel
+  predicate trans (rel : 'a -> 'a -> bool) = forall x y z:'a. rel x y -> rel y z -> rel x z
+  predicate asymm (rel : 'a -> 'a -> bool) = forall x y:'a. rel x y -> not rel y x
+  predicate partialStrictOrder (rel : 'a -> 'a -> bool) = trans rel /\ asymm rel
+  predicate trichotomy (rel : 'a -> 'a -> bool) = forall x y:'a. rel x y \/ rel y x \/ x = y
+  predicate totalStrictOrder (rel : 'a -> 'a -> bool) = partialStrictOrder rel /\ trichotomy rel
 
   lemma irrefl :
-    forall lt : bint -> bint -> bool. asymm lt -> forall a:bint. lt a a = false
-  (** `lt` is irreflexive. Helps the Why3 proofs for `numof_max` and the range of `rank`. *)
+    forall lt : 'a -> 'a -> bool. asymm lt -> forall a:'a. lt a a = false
+  (** An asymmetric relation `lt` is irreflexive. Helps the proofs of `numof_max` and `rank'vc`. *)
 
   let predicate lt_int (lt : bint -> bint -> bool) (a:bint) (j:int) = low <= j <= up && lt (of_int j) a
 
@@ -384,6 +384,13 @@ module Rank
     forall a:bint. numof (lt_int lt a) low (up+1) <= up - low
   (** Consequence of irreflexivity of `lt` and lemma `Numof_no_add`. *)
 
+  let predicate lt_map (m: map bint bint) (i j:bint) = lt_bint m[i] m[j]
+
+  lemma lt_map_bij_sto: forall sigma : map bint bint. bijective sigma -> 
+    totalStrictOrder (fun i -> fun j -> lt_map sigma i j)
+  (** The image of a bijective application by `lt_map` is a total strict order.
+      Similar to ModelSTOI but with Boolean functions instead of predicates. *)
+  
   let function rank (lt : bint -> bint -> bool) (a:bint) : bint
     requires { totalStrictOrder lt }
   =
@@ -482,16 +489,23 @@ module Rank
     done;
     j
 
-  lemma   rank_ltK: forall lt. forall i. rank lt (unrank lt i) = i
+  lemma rank_ltK: forall lt. totalStrictOrder lt -> forall i. rank lt (unrank lt i) = i
   (** `rank lt` is the left inverse of `unrank lt`. Tested in the module `Tests' below. *)
 
-  lemma unrank_ltK: forall lt. forall i. unrank lt (rank lt i) = i
-  (** `unrank lt` is the left inverse of `rank lt`. Tested in the module `Tests' below. *)
+  lemma unrank_ltK: forall lt. totalStrictOrder lt -> forall i. unrank lt (rank lt i) = i
+  (** `unrank lt` is the left inverse of `rank lt`. Automatically proved with Alt-Ergo.
+      Also interactively deduced in Coq from lemmas rank_ltK and rank_lt_inj. *)
+
+  lemma lt_mapK: forall lt. totalStrictOrder lt -> lt_map (rank lt) = lt
+
+  lemma Proposition1: forall lt. totalStrictOrder lt ->
+    exists sigma. bijective sigma /\ lt_map sigma = lt
+  (** Proposition 1 in [Gio21]. *)
 
 end
 
 
-(** {2 4. Tests of two cancellation lemmas} *)
+(** {2 4. Enumerative tests} *)
 
 module Tests
 
@@ -532,24 +546,6 @@ module Tests
   let function rank_cancel_test
   =
     SCheck_runner.run_tests (Test.make SCheck.(permut_of_size size) rank_cancel_array)
-  (** First test *)
-     
-  let function unrank_cancel lt : bool
-    requires { totalStrictOrder lt }
-  = 
-    for i = one to size do
-      let j = of_int i in
-      if not (unrank lt (rank lt j) = j) then return false
-    done;
-    true
-
-  let unrank_cancel_array (a:array int) : bool
-    requires { a.length = size /\ is_permut a }
-  =
-    unrank_cancel (array_sto a)
-
-  let function unrank_cancel_test =
-    SCheck_runner.run_tests (Test.make SCheck.(permut_of_size size) unrank_cancel_array)
-  (** Second test *)
+  (** Enumerative test of rank_ltK. *)
 
 end
