@@ -2,7 +2,16 @@
 
   [ABF20] Michael Albert, Mathilde Bouvel, and Valentin Féray. Two first-order logics of 
   permutations. Journal of Combinatorial Theory, Series A, 171:105158, April 2020.
-  https://arxiv.org/abs/1808.05459v2.
+  [https://arxiv.org/abs/1808.05459v2](https://arxiv.org/abs/1808.05459v2).
+
+  [Gio20] A. Giorgetti. Formalisation et vérification de théories de permutations.
+  Research report RR-1715 (in French), UBFC (Université de Bourgogne Franche-Comté) and 
+  FEMTO-ST, 17 pages, December 2020.
+  [https://hal.archives-ouvertes.fr/hal-03033416](https://hal.archives-ouvertes.fr/hal-03033416).
+
+  [Gio21] A. Giorgetti. Théories de permutations avec Why3. In JFLA 2021, 8 pages,
+  April 2021.
+  [http://jfla.inria.fr/jfla2021.html](http://jfla.inria.fr/jfla2021.html).
 *)
 
 (** {2 1. Proposal of extension of relations.mlw in stdlib, for TOOB} *)
@@ -314,15 +323,16 @@ module STOI
   clone export relations.Irreflexive with type t = t, predicate rel = lt
   (** Provides the property `Strict` that simplifies the Coq proof for `rank` injectivity.
       Similar to the following lemma:
-  lemma Strict : forall i:bint. not (lt i i)
-  *)
+  `lemma Strict : forall i:bint. not (lt i i)` *)
 
 end
 
 
 (** {2 2. Permutation model for STOI} *)
 
-module ModelSTOI
+(** {3 2.1. From a permutation over [1..`size`]} *)
+
+module Gio20proposition5 (* [Gio20, Proposition 5] *)
 
   use int.Int
   use map.Map
@@ -331,7 +341,7 @@ module ModelSTOI
   val constant size : int
 
   clone export Interval with val low = one, val up = size, axiom .
-  (** Defines `bint` as the interval [`one`..`size`]. 1 <= size is assumed. *)
+  (** Defines `bint` as a type for the interval [`one`..`size`]. 1 <= `size` is assumed. *)
 
   val constant sigma : map bint bint
   axiom sigma_bij : bijective sigma
@@ -339,10 +349,29 @@ module ModelSTOI
   let predicate lt_sigma (i j: bint) = lt_bint (sigma i) (sigma j)
 
   clone export STOI with type t = bint, val lt = lt_sigma
-  (** The pair ([`one`..`size`],`lt_sigma`) is a (permutation) model of STOI.
-      Axioms Deter and Injec are automatically proved with Alt-Ergo.
-      Axiom Total is proved by Z3.
-      Axiom Surjec is automatically proved with inline_all; CVC4 1.6. *)
+  (** The pair ([`one`..`size`],`lt_sigma`) is a (permutation) model of STOI. *)
+
+end
+
+
+(** {3 2.2. From a permutation over any interval [`low`..`up`]} *)
+
+module ModelSTOI (* [Gio21, Section 4, Paragraph 2] *)
+
+  use map.Map
+  use MapInjSurjBij
+
+  clone export Interval with axiom .
+  (** Defines `bint` as a type for the interval [`low`..`up`]. `low` <= `up` is assumed. *)
+
+  val constant sigma : map bint bint
+  axiom sigma_bij : bijective sigma
+
+  let predicate lt_map (m: map bint bint) (i j: bint) = lt_bint m[i] m[j]
+  let predicate lt_sigma (i j: bint) = lt_map sigma i j
+
+  clone export relations.TotalStrictOrder with type t = bint, predicate rel = lt_sigma
+  (** The pair ([`low`..`up`],`lt_sigma`) is a (permutation) model of STOI. *)
 
 end
 
@@ -416,7 +445,7 @@ module Rank
     let ref m = of_int low in
     for i = low+1 to up do
       invariant { low+1 <= i <= up+1 }
-      invariant {is_max_left lt m (i-1) }
+      invariant { is_max_left lt m (i-1) }
       let j = of_int i in
       if lt m j then m := j
     done;
