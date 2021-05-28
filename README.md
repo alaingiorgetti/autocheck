@@ -18,6 +18,11 @@ Copyright
 
 This program is distributed under the GNU LGPL 3. See the enclosed file [LICENSE](./LICENSE).
 
+Installation
+============
+
+See INSTALL.md.
+
 Documentation
 =============
 

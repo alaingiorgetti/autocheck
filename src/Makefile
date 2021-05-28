@@ -1,5 +1,5 @@
 ######################################################################
-# Copyright (C) 2020 Clotilde Erard and Alain Giorgetti              #
+# Copyright (C) 2020-2021 Clotilde Erard and Alain Giorgetti         #
 # FEMTO-ST institute                                                 #
 ######################################################################
 
@@ -20,12 +20,10 @@ ABF20:
 	why3 session latex ABF20 functions
 	why3 doc $(DIRS) ABF20.mlw functions.mlw
 	@echo firefox ABF20.html functions.html
-	cp ABF20.html functions.html ../docs/permutTheory/
 	cd ABF20; make doc
-	cp ABF20/why3session.html ../docs/permutTheory/ABF20/
 	cd functions; make doc
-	cp functions/why3session.html ../docs/permutTheory/functions/
 	bash ./why3_check.sh ABF20 Tests
+	why3 replay $(DIRS) functions
 	why3 replay $(DIRS) ABF20 # may fail, so, last command
 
 ide:

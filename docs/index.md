@@ -43,7 +43,7 @@ name in the folder.
 # Applications
 
 1. Enumerative testing of function properties in theories of permutations with Why3: 
-  research report [Gio20], 
+  communication at JFLA 2021 [Gio21], research report [Gio20], 
   code files [functions.mlw](https://github.com/alaingiorgetti/autocheck/blob/master/src/functions.mlw) and 
    [ABF20.mlw](https://github.com/alaingiorgetti/autocheck/blob/master/src/ABF20.mlw), 
  [code documentation](https://alaingiorgetti.github.io/autocheck/permutTheory/index.html), 
@@ -55,12 +55,19 @@ name in the folder.
 [EG19] C. Erard and A. Giorgetti. Bounded Exhaustive Testing with Certified
 and Optimized Data Enumeration Programs. In: Gaston, C., Kosmatov, N., Le Gall,
 P. (eds.) Testing Software and Systems. ICTSS 2019. LNCS, vol. 11812, pp. 159-175.
-Springer, Cham (2019), [https://doi.org/10.1007/978-3-030-31280-0_10](https://doi.org/10.1007/978-3-030-31280-0_10).
+Springer, Cham (2019).
+[https://doi.org/10.1007/978-3-030-31280-0_10](https://doi.org/10.1007/978-3-030-31280-0_10).
 
 [EG20] C. Erard and A. Giorgetti. Random and Enumerative Testing for OCaml and 
-WhyML Properties. 20 pages. [https://alaingiorgetti.github.io/autocheck/EG20.pdf](https://alaingiorgetti.github.io/autocheck/EG20.pdf).
+WhyML Properties. 20 pages.
+[https://alaingiorgetti.github.io/autocheck/EG20.pdf](https://alaingiorgetti.github.io/autocheck/EG20.pdf).
 
 [Gio20] A. Giorgetti. Formalisation et vérification de théories de permutations. Research report RR-1715 (in French), 
-UBFC (Université de Bourgogne Franche-Comté) and FEMTO-ST, 17 pages, December 2020. [https://hal.archives-ouvertes.fr/hal-03033416](https://hal.archives-ouvertes.fr/hal-03033416).
+UBFC (Université de Bourgogne Franche-Comté) and FEMTO-ST, 17 pages, December 2020.
+[https://hal.archives-ouvertes.fr/hal-03033416](https://hal.archives-ouvertes.fr/hal-03033416).
+
+[Gio21] A. Giorgetti. Théories de permutations avec Why3. In JFLA 2021, 32 èmes Journées Francophones des Langages Applicatifs,
+pages 202-209, April 2021.
+[https://hal.inria.fr/hal-03190426](https://hal.inria.fr/hal-03190426).
 
 Copyright (C) 2019-2021 Clotilde Erard and Alain Giorgetti

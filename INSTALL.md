@@ -1,9 +1,9 @@
 Installation instructions
 =========================
 
-Release 0.1.0 of AutoCheck is proposed only for Linux and to be used with files
-in the folder src/ in a Docker container, as detailed below. All Docker commands
-are shortened thanks to Makefile entries.
+AutoCheck is proposed only for Linux and to be used with files in the folder src/ 
+in a Docker container, as detailed below. All Docker commands are shortened thanks
+to Makefile entries.
 
 Installation with Docker
 ------------------------
@@ -22,14 +22,14 @@ Installation with Docker
 
    Warnings: The Docker image is a large file, its construction can be very long.
    A network connection is required. If you already have a Docker image with this
-   name, then rename it, remove it or change the image name in Makefile and ctr*.sh.
+   name, then rename it, remove it or change the image name in Makefile and ctr.sh.
 
 5. Create the container:
 
      make ctr
 
    Warning: If you already have a Docker container with the same name, then rename it,
-   remove it or change the container name in Makefile and ctr*.sh.
+   remove it or change the container name in Makefile and ctr.sh.
 
 6. Start an interactive session in the container and move to the src/ folder in it:
 

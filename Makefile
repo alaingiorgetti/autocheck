@@ -1,5 +1,5 @@
 #######################################################################
-# Copyright (C) 2020 Alain Giorgetti and Clotilde Erard               #
+# Copyright (C) 2020-21 Alain Giorgetti and Clotilde Erard            #
 # FEMTO-ST institute                                                  #
 #######################################################################
 
@@ -28,12 +28,6 @@ ctr:
 	# Uncomment next line if the container already exists
 	# docker container rm autocheckctr
 	bash ./ctr.sh
-
-# Sometimes 'make ctrmac' does not work. Then run 'bash ./ctrmac.sh' directly!
-ctrmac:
-	# Uncomment next line if the container already exists
-	# docker container rm autocheckctr
-	bash ./ctrmac.sh
 
 # For more safety xhost is opened only to the container hostname, retrieved by
 # the command

@@ -9,3 +9,7 @@ Release 0.1.1
 =============
 
 + Code accompanying [Gio20] and [Gio21].
+
+Warning: the code is actually developed and verified with more recent tool
+releases than those mentioned in [Gio20,Gio21]: Why3 1.3.3, Coq 8.12.2, Alt-Ergo
+2.4.0, CVC4 1.6, Z3 4.7.1 and Z3 4.8.10.
