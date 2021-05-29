@@ -1,5 +1,6 @@
 (********************************************************************)
-(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* Copyright (C) 2020-2021 Alain Giorgetti, Clotilde Erard and      *)
+(*                                          Jérome Ricciardi        *)
 (* FEMTO-ST institute                                               *)
 (********************************************************************)
 
@@ -9,26 +10,62 @@
 (********************************************************************)
 
 (* TestExamples.mlw: Examples of random and enumerative tests of WhyML
-   properties.
-*)
+   properties. *)
+
 
 (** Properties tested randomly and by enumeration *)
 module Properties
 
   use int.Int
   use int.Abs
+  use option.Option
+  use array.Array
+  use list.List
+  use list.Length as L
+  use Enum.ListExtension
+  use Enum.Barray (* provides the property b_barray *)
+  use Enum.Blist
 
-  let function is_unit (x: unit) : bool
-  =
-    match x with () -> False | _ -> True end
-
-  lemma l_unit: is_unit ()
+  let function is_unit_prop (x: unit) : bool
+  = match x with () -> False end
 
   (** Wrong property over integers, mutation of
         lemma Abs_pos: forall x:int. abs x >= 0
       from stdlib, with > instead of >=. *)
 
-  let wrong_abs_pos (n: int) : bool = abs n > 0
+  lemma Abs_gt0: forall x:int. abs x > 0
+
+  let wrong_abs_pos_prop (n: int) : bool = abs n > 0
+
+  (** array type *)
+
+  let length_make_prop (n: int) : bool
+  = length (Array.make n 0) = n
+
+  let array_length_prop (a: array int) : bool
+  = if 0 = length a then True else False
+
+  let b_barray_5_prop (a: array int) : bool =
+    b_barray a 5
+
+  (** Executable property for `is_blist` *)
+  let b_blist (l: list int) (b: int) : bool
+    ensures { result <-> is_blist l b }
+  =
+    if b <= 0 then
+      False
+    else begin
+      for i = 0 to (L.length l) - 1 do
+        invariant { is_blist_sub l 0 i b }
+        if not (0 <= nth_func_rec i l < b) then return False
+      done;
+      True
+    end
+
+  let b_blist_prop (l: list int) : bool
+    ensures { result <-> is_blist l 100 }
+  =
+    b_blist l 100
 
 end
 
@@ -55,12 +92,8 @@ module RandomTests
   use Properties
 
   (** unit type *)
-
   let is_unit_test = QCheck_runner.run_tests (
-    Test.make
-      QCheck.unit
-      is_unit
-  )
+    Test.make QCheck.unit is_unit_prop)
 
   (** bool type *)
 
@@ -89,11 +122,12 @@ module RandomTests
 
   (** Propositional tautology with two propositions: a or b <-> b or a *)
 
-  let orb_commut (x: (bool,bool)) : bool
+  let orb_commut_prop (x: (bool,bool)) : bool
   =
     let (a,b) = x in equivb (orb a b) (orb b a)
 
-  let orb_commut_test = QCheck_runner.run_tests (Test.make bool_pair_arbitrary orb_commut)
+  let orb_commut_test = QCheck_runner.run_tests (
+    Test.make bool_pair_arbitrary orb_commut_prop)
 
   (** Test of de Morgan's laws *)
 
@@ -109,10 +143,10 @@ module RandomTests
   (** Int type *)
 
   let wrong_abs_pos_test1 =
-    QCheck_runner.run_tests (Test.make QCheck.(int_range (-100000) 100000) wrong_abs_pos) (* No counterexample *)
+    QCheck_runner.run_tests (Test.make QCheck.(int_range (-100000) 100000) wrong_abs_pos_prop) (* No counterexample *)
 
   let wrong_abs_pos_test2 =
-    QCheck_runner.run_tests (Test.make QCheck.(int_range (-10) 10) wrong_abs_pos) (* Counterexample found *)
+    QCheck_runner.run_tests (Test.make QCheck.(int_range (-10) 10) wrong_abs_pos_prop) (* Counterexample found *)
 
   (** Test of
         lemma Abs_le: forall x y:int. abs x <= y <-> -y <= x <= y
@@ -120,13 +154,13 @@ module RandomTests
 
   lemma Abs_le_copy: forall x y:int. abs x <= y <-> -y <= x <= y
 
-  let abs_le (n: (int, int)) : bool
+  let abs_le_prop (n: (int, int)) : bool
   =
     let (x,y) = n in equivb (abs x <= y) (-y <= x <= y)
 
   let pair_int_arbitrary = QCheck.(pair QCheck.(int_range (-10) 10) QCheck.(int_range (-10) 10))
 
-  let abs_le_test = QCheck_runner.run_tests (Test.make pair_int_arbitrary abs_le)
+  let abs_le_test = QCheck_runner.run_tests (Test.make pair_int_arbitrary abs_le_prop)
 
 
   (** EuclideanDivision *)
@@ -197,9 +231,6 @@ module RandomTests
 
   (** option type *)
 
-  let function is_none (x: option 'a) : bool =
-    match x with None -> True | _ -> False end
-
   let is_none_test = QCheck_runner.run_tests (
     Test.make 
       QCheck.(option QCheck.int) 
@@ -211,7 +242,7 @@ module RandomTests
   (* First example of test with a predefined 'let predicate' *)
 
   (* Extraction of is_nil by drivers/ocaml64.drv did not work with Why3 1.2.0.
-     Works with Why3 1.3.1. *)
+     Works with Why3 1.3.1 and 1.3.3. *)
   let is_nil_test
   =
     QCheck_runner.run_tests (Test.make QCheck.(list QCheck.bool) is_nil)
@@ -235,9 +266,7 @@ module RandomTests
   let test_nonnegative2 = QCheck_runner.run_tests 
     (Test.make QCheck.(list QCheck.bool) wrong_length_nonnegative)  (* Counterexample found *)
 
-  (** Test of 
-        lemma Length_nil: forall l: list 'a. length l = 0 <-> l = Nil
-      from stdlib. *)
+  (** Test of lemma Length_nil: forall l: list 'a. length l = 0 <-> l = Nil from stdlib. *)
 
   let length_nil (l: list 'a) : bool
   =
@@ -254,14 +283,88 @@ module RandomTests
 
   let for_all_test = QCheck_runner.run_tests (Test.make QCheck.(list QCheck.int) for_all_prop)
 
-  (** array type *)
-
-  let length_make (n: int) : bool
-  =
-    length (Array.make n 0) = n
+  (* Test of Lemma length_make, with the property length_make_prop *)
 
   let length_make_test = QCheck_runner.run_tests (
-    Test.make QCheck.(int_bound 10000) length_make)
+    Test.make QCheck.(int_bound 10000) length_make_prop)
+
+  (* Read-write axioms *)
+
+  let rw_axioms (a: array int) (i j v: int) : bool
+  =
+    let b = copy a in
+    b[i] <- v;
+    if
+      (i = j && b[j] = v) ||
+      (i <> j && b[j] = a[j])
+    then True else False
+
+  let rw_axioms_quad (x: ((array int),int,int,int)) : bool
+  =
+    let (a,i,j,v) = x in
+    rw_axioms a i j v
+
+  (* (sized_array_gen n) generates an (array int) of length n at random *)
+
+(* TODO, see QCheck.mlw
+  let sized_array_gen (n: int) : RS.t -> {array int}
+  =
+    QCheck.Gen.array_size (fun _ -> n) QCheck.Gen.int
+
+  (* rw_axioms_gen generates a quadruple (a,i,j,v) to test rw_axioms. *)
+
+
+  let rw_axioms_gen (x: RS.t) : ({array int},int,int,int)
+  =
+    let n = QCheck.Gen.int_range 1 5 x in
+      (QCheck.Gen.quad
+        (sized_array_gen n)
+        (QCheck.Gen.int_bound (n-1))
+        (QCheck.Gen.int_bound (n-1))
+        QCheck.Gen.int
+      )
+      x
+*)
+
+(* TODO: finish
+  let rw_axioms_arbitrary (x: arbitrary (array int,int,int,int))
+  =
+    QCheck.make
+      rw_axioms_gen
+
+  let rw_axioms_test
+  =
+    QCheck_runner.run_tests (
+      QCheck.Test.make rw_axioms_arbitrary rw_axioms_quad)
+*)
+
+(* TODO
+  (* Wrong mutation in read-write axioms: get a i instead of 
+     get a j *)
+  let wrong_rw_axioms_quad (x:(int array*int*int*int)) : bool =
+    let (a,i,j,v) = x in
+    let b = Array.copy a in
+    set b i v;
+    if
+      (i = j && get b j = v) ||
+      (i <> j && get b j = get a i)
+    then True else False
+
+  let wrong_rw_axioms_test = QCheck_runner.run_tests [
+    QCheck.Test.make
+      ~name:"6: randomly, \"Mutation in RW axioms\""
+      rw_axioms_arbitrary
+      wrong_rw_axioms_quad
+  ]
+*)
+
+  (** array type *)
+
+  let array_length_test = QCheck_runner.run_tests (
+    Test.make
+      QCheck.(array QCheck.int)
+      array_length_prop
+    )
 
 end
 
@@ -277,11 +380,11 @@ module EnumerativeTests
   use option.Option
   use list.List
   use array.Array
-  use Enum.ArrayQuant
   use Enum.ArrayInjection
   use Enum.Fact
   use Enum.Permutation
   use Enum.Barray
+  use Enum.Blist
   use inverse_in_place.InverseInPlace
   use Properties
 
@@ -289,7 +392,6 @@ module EnumerativeTests
   use SCheck.Test
   use SCheck.SCheck
   use SCheck.SCheck_runner
-
 
   (** unit type *)
 
@@ -302,18 +404,12 @@ module EnumerativeTests
   (** int type *)
 
   let wrong_abs_pos_test1 = SCheck_runner.run_tests (
-    Test.make SCheck.(int_range (-100000) 100000) wrong_abs_pos) (* counterexample found in s. *)
+    Test.make SCheck.(int_range (-100000) 100000) wrong_abs_pos_prop) (* counterexample found in s. *)
 
   let wrong_abs_pos_test2 = SCheck_runner.run_tests (
-    Test.make SCheck.(int_range (-10) 10) wrong_abs_pos) (* counterexample found in ? s *)
+    Test.make SCheck.(int_range (-10) 10) wrong_abs_pos_prop) (* counterexample found in ? s *)
 
   (** option type *)
-
-  let function is_none (x: option 'a) : bool =
-    match x with
-    | None -> true 
-    | _ -> false
-    end
 
   let is_none_test = SCheck_runner.run_tests (
     Test.make
@@ -321,14 +417,26 @@ module EnumerativeTests
       is_none
   )
 
-  (** array type *)
+  (** list type *)
 
-  let length_make (n: int) : bool
+  let function is_nil_test
   =
-    length (Array.make n 0) = n
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(blist_of_size 100 10)
+        is_nil
+    )
+
+  let function b_blist_test
+  =
+    SCheck_runner.run_tests (
+      Test.make
+        SCheck.(blist_of_size 100 10)
+        Properties.b_blist_prop
+    )
 
   let length_make_test = SCheck_runner.run_tests (
-    Test.make SCheck.(int_bound 10000) length_make)
+    Test.make SCheck.(int_bound 10000) length_make_prop)
 
   (** Examples of ENUM properties *)
 
@@ -349,42 +457,37 @@ module EnumerativeTests
     SCheck_runner.run_tests (
       Test.make
         SCheck.(fact_of_size 4)
-        b_inj
+        b_injective
     )
 
   (* The generator of permutation arrays is sound: *)
 
-  let function b_permut_test
+  let b_permutation_test
   =
     SCheck_runner.run_tests (
       Test.make
         SCheck.(permut_of_size 5)
-        b_permut
+        b_permutation
       )
 
   (** Test of properties of inverse_in_place *)
 
   (* The function inverse_in_place preserves permutations *)
 
-  let function inverse_in_place_permut (a: array int) : bool
-  =
-    let newa = copy a in
-    inverse_in_place newa;
-    b_permut newa
+  let inverse_in_place_permut_prop (a: array int) : bool
+  = 
+    let newa = copy a in inverse_in_place newa;
+    b_permutation newa
 
-  let function inverse_in_place_permut_test
-  =
+  let inverse_in_place_permut_test
+  = 
     SCheck_runner.run_tests (
-      Test.make
-        SCheck.(permut_of_size 6)
-        inverse_in_place_permut
-    )
+      Test.make SCheck.(permut_of_size 6) inverse_in_place_permut_prop)
 
   (* The function inverse_in_place computes the inverse permutation. *)
 
-  (* Implementation of the postcondition
-       ensures  { forall i. 0 <= i < length a -> (old a)[a[i]] = i }
-  *)
+  (* Implementation of the postcondition ensures 
+     { forall i. 0 <= i < length a -> (old a)[a[i]] = i } *)
 
   let predicate inverse_values (a b: array int) (i: int) = a[b[i]] = i
 
@@ -399,9 +502,9 @@ module EnumerativeTests
     for i = 0 to a.length-1 do
       invariant { 0 <= i <= a.length }
       invariant { is_inverse_sub a b i }
-      if not (inverse_values a b i) then return false
+      if not (inverse_values a b i) then return False
     done;
-    true
+    True
 
   let function inverse_in_place_inverse (a: array int) : bool
   =
@@ -409,7 +512,7 @@ module EnumerativeTests
     inverse_in_place newa;
     (b_inverse a newa)
 
-  let function inverse_in_place_inverse_test
+  let inverse_in_place_inverse_test
   =
     SCheck_runner.run_tests (
       Test.make
@@ -417,16 +520,20 @@ module EnumerativeTests
         inverse_in_place_inverse
       )
 
-  (* Beginning of tests not documented in [EG20] *)
-
-  (* The generator of arrays of length 5 bounded by 3 is sound: *)
-  let function b_barray_test
+  let b_barray_test
   =
     SCheck_runner.run_tests (
       Test.make
         SCheck.(barray_of_size 3 5)
-        (fun a -> b_barray a 3)
+        b_barray_5_prop
     )
+
+  let array_length_test =
+    SCheck_runner.run_tests (
+      Test.make 
+        SCheck.(barray_of_size 100 10)
+        array_length_prop
+      )
 
 end
 
@@ -444,7 +551,7 @@ module WrongAbsPos1
   use SCheck.SCheck_runner
 
   let wrong_abs_pos_test1 = SCheck_runner.run_tests (
-    Test.make SCheck.(int_range (-10000000) 10000000) wrong_abs_pos) (* counterexample found in more than 3 s. *)
+    Test.make SCheck.(int_range (-10000000) 10000000) wrong_abs_pos_prop) (* counterexample found in more than 3 s. *)
 
 end
 
@@ -460,7 +567,7 @@ module WrongAbsPos2
   use SCheck.SCheck_runner
 
   let wrong_abs_pos_test2 = SCheck_runner.run_tests (
-    Test.make SCheck.(int_bound 10000) wrong_abs_pos) (* counterexample found in less than 1s *)
+    Test.make SCheck.(int_bound 10000) wrong_abs_pos_prop) (* counterexample found in less than 1s *)
 
 end
 

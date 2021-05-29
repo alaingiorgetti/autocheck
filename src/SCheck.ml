@@ -1,5 +1,6 @@
 (********************************************************************)
-(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* Copyright (C) 2020-2021 Alain Giorgetti, Clotilde Erard and      *)
+(*                                          Jérome Ricciardi        *)
 (* FEMTO-ST institute                                               *)
 (********************************************************************)
 
@@ -10,8 +11,7 @@
 
 (* SCheck.ml: Enumerative testing for OCaml
 
-   Inspired by QCheck for OCaml and SmallCheck for Haskell
-*)
+   Inspired by QCheck for OCaml and SmallCheck for Haskell *)
 
 let poly_compare=compare
 open Printf
@@ -20,6 +20,9 @@ open QCheck  (* for printing feature *)
 
 open Enum    (* Library of OCaml enumerators extracted from certified
                 WhyML enumerators *)
+
+open Array   (* For Array.to_list *)
+open List
 
 module EnumState = struct
   type 'a t = {
@@ -37,8 +40,16 @@ module EnumAdapter = struct
   (* Conversion of (Z.t) array into int array. *)
   let to_int_array (za: (Z.t) array) : int array = Array.map (Z.to_int) za
 
+  (* Conversion of (Z.t) list into int list. *)
+  let to_int_list (zl: (Z.t) list) : int list =
+    Array.to_list (Array.map (Z.to_int) (Array.of_list zl))
+
   (* Conversion of int array into (Z.t) array. *)
   let of_int_array (a: int array) : (Z.t) array = Array.map (Z.of_int) a
+
+  (* Conversion of int list into (Z.t) list. *)
+  let of_int_list (l: int list) : (Z.t) list =
+    Array.to_list (Array.map (Z.of_int) (Array.of_list l))
 
   let es_of_enum (lc: Lexgen__Cursor.cursor) : (int array) ES.t = {
     item = to_int_array lc.current;
@@ -46,13 +57,30 @@ module EnumAdapter = struct
     is_new = lc.new1
   }
 
+  let es_of_enum_list (lc: LexgenList__Cursor.cursor) : (int list) ES.t = {
+    item = to_int_list lc.current;
+    rk = 0; (* not yet implemented *)
+    is_new = lc.new1
+  }
+
   let es_to_enum (c: (int array) ES.t) : Lexgen__Cursor.cursor = {
-    current =of_int_array  c.item;
+    current = of_int_array c.item;
+    new1 = c.is_new
+  }
+
+  let es_to_enum_list (c: (int list) ES.t) : LexgenList__Cursor.cursor = {
+    (* `current` is `(Z.t) list` and `c.item` is `int list` *)
+    (* then `of_int_list c.item` is `(Z.t) list` *) 
+    current = of_int_list c.item;
+    (* `new1` and `c.is_new` are Booleans *)
     new1 = c.is_new
   }
 
   let create_of_enum (cc: Z.t -> Lexgen__Cursor.cursor) (n: int) : (int array) ES.t =
     es_of_enum (cc (Z.of_int n))
+
+  let create_of_enum_list (cc: Z.t -> LexgenList__Cursor.cursor) (n: int) : (int list) ES.t =
+    es_of_enum_list (cc (Z.of_int n))
 
   let next_of_enum (n: Lexgen__Cursor.cursor -> unit) :
      (int array) ES.t -> (int array) ES.t =
@@ -60,6 +88,14 @@ module EnumAdapter = struct
      let lc = es_to_enum c in begin
        n lc;
        es_of_enum lc
+     end
+
+  let next_of_enum_list (n: LexgenList__Cursor.cursor -> unit) :
+     (int list) ES.t -> (int list) ES.t =
+     fun c ->
+     let lc = es_to_enum_list c in begin
+       n lc;
+       es_of_enum_list lc
      end
 end
 
@@ -139,106 +175,117 @@ module Gen = struct
   let fact_size (size: int) : (int array) gen = {
     create = (fun n -> 
       EnumAdapter.create_of_enum 
-      Fact.create_cursor
+      Fact__Enum.create_cursor
       n);
     has_next = (fun c -> c.is_new);
-    next = EnumAdapter.next_of_enum Fact.next
+    next = EnumAdapter.next_of_enum Fact__Enum.next
   }
 
   (* Permutations on [0..size-1]. *)
   let permut_size (size: int) : (int array) gen = {
     create = (fun n -> 
       EnumAdapter.create_of_enum 
-      Permutation.create_cursor
+      Permutation__Enum.create_cursor
       n);
     has_next = (fun c -> c.is_new);
-    next = EnumAdapter.next_of_enum Permutation.next
+    next = EnumAdapter.next_of_enum Permutation__Enum.next
   }
 
   (* RGFs on [0..size-1]. *)
   let rgf_size (size: int) : (int array) gen = {
     create = (fun n -> 
       EnumAdapter.create_of_enum 
-      Rgf.create_cursor
+      Rgf__Enum.create_cursor
       n);
     has_next = (fun c -> c.is_new);
-    next = EnumAdapter.next_of_enum Rgf.next
+    next = EnumAdapter.next_of_enum Rgf__Enum.next
   }
 
   (* Sorted arrays of a given size on [0..k-1]. *)
   let sorted_size (k: int) (size: int) : (int array) gen = {
     create = (fun n ->
       EnumAdapter.create_of_enum 
-        (fun n -> Sorted.create_cursor n (Z.of_int k))
+        (fun n -> Sorted__Enum.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum 
-      (fun c -> Sorted.next c (Z.of_int k))
+      (fun c -> Sorted__Enum.next c (Z.of_int k))
   }
 
   (* Bounded arrays of a given size on [0..k-1]. *)
   let barray_size (k: int) (size: int) : (int array) gen = {
     create = (fun n -> 
       EnumAdapter.create_of_enum 
-        (fun n -> Barray.create_cursor n (Z.of_int k))
+        (fun n -> Barray__Enum.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum
-     (fun c -> Barray.next c (Z.of_int k))
+     (fun c -> Barray__Enum.next c (Z.of_int k))
+  }
+
+
+ let blist_size (k: int) (size: int) : (int list) gen = {
+    create = (fun n -> 
+      EnumAdapter.create_of_enum_list 
+        (fun n -> Blist__Enum.create_cursor n (Z.of_int k))
+        n);
+    has_next = (fun c -> c.is_new);
+    next = EnumAdapter.next_of_enum_list
+      (fun c -> Blist__Enum.next c (Z.of_int k))
   }
 
   (* Endofunctions on [0..size-1]. *)
   let endo_size (size: int) : (int array) gen = {
     create = (fun n -> 
       EnumAdapter.create_of_enum 
-      Endo.create_cursor
+      Endo__Enum.create_cursor
       n);
     has_next = (fun c -> c.is_new);
-    next = EnumAdapter.next_of_enum Endo.next
+    next = EnumAdapter.next_of_enum Endo__Enum.next
   }
 
   (* Sorted arrays of a given size on [0..k-1], by filtering bounded arrays. *)
   let sorted_barray_size (k: int) (size: int) : (int array) gen = {
     create = (fun n ->
       EnumAdapter.create_of_enum 
-        (fun n -> SortedBarray.create_cursor n (Z.of_int k))
+        (fun n -> Sorted__SortedBarray.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum 
-      (fun c -> SortedBarray.next c (Z.of_int k))
+      (fun c -> Sorted__SortedBarray.next c (Z.of_int k))
   }
 
   (* Injections from [0..size-1] to [0..k-1], by filtering. *)
   let inj_barray_size (k: int) (size: int) : (int array) gen = {
     create = (fun n ->
       EnumAdapter.create_of_enum 
-        (fun n -> InjBarray.create_cursor n (Z.of_int k))
+        (fun n -> Filtering__InjBarray.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum 
-      (fun c -> InjBarray.next c (Z.of_int k))
+      (fun c -> Filtering__InjBarray.next c (Z.of_int k))
   }
 
   (* Surjections from [0..size-1] to [0..k-1], by filtering. *)
   let surj_barray_size (k: int) (size: int) : (int array) gen = {
     create = (fun n ->
       EnumAdapter.create_of_enum 
-        (fun n -> SurjBarray.create_cursor n (Z.of_int k))
+        (fun n -> Surj__SurjBarray.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum 
-      (fun c -> SurjBarray.next c (Z.of_int k))
+      (fun c -> Surj__SurjBarray.next c (Z.of_int k))
   }
 
   (* Combinations of size elements from k in [0..k-1]. *)
   let comb_barray_size (k: int) (size: int) : (int array) gen = {
     create = (fun n ->
       EnumAdapter.create_of_enum 
-        (fun n -> CombBarray.create_cursor n (Z.of_int k))
+        (fun n -> Filtering__CombBarray.create_cursor n (Z.of_int k))
         n);
     has_next = (fun c -> c.is_new);
     next = EnumAdapter.next_of_enum 
-      (fun c -> CombBarray.next c (Z.of_int k))
+      (fun c -> Filtering__CombBarray.next c (Z.of_int k))
   }
 
 end
@@ -326,6 +373,12 @@ let barray_of_size k size : (int array) serial = {
   gen = Gen.barray_size k size;
   size = size;
   print = _opt_map ~f:Print.array int.print
+}
+
+let blist_of_size k size : (int list) serial = {
+  gen = Gen.blist_size k size;
+  size = size;
+  print = _opt_map ~f:Print.list int.print
 }
 
 let sorted_barray_of_size k size : (int array) serial = {
