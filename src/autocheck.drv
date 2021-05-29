@@ -1,5 +1,6 @@
 (********************************************************************)
-(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* Copyright (C) 2020-2021 Alain Giorgetti, Clotilde Erard and      *)
+(*                                          Jérome Ricciardi        *)
 (* FEMTO-ST institute                                               *)
 (********************************************************************)
 
@@ -65,6 +66,7 @@ module SCheck.SCheck
   syntax val fact_of_size "SCheck.(fact_of_size %1)"
   syntax val permut_of_size "SCheck.(permut_of_size %1)"
   syntax val barray_of_size "SCheck.(barray_of_size %1 %2)"
+  syntax val blist_of_size "SCheck.(blist_of_size %1 %2)"
 end
 
 module SCheck.Test
