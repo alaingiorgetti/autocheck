@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ####################################################################
-# Copyright 2020 Alain Giorgetti and Clotilde Erard                #
+# Copyright 2020-2021 Alain Giorgetti, Clotilde Erard and          #
+# Jérome Ricciardi                                                 #
 # FEMTO-ST institute                                               #
 ####################################################################
 
@@ -31,7 +32,7 @@ wchk () {
   rm -f $2.ml
   rm -f *.bak; rm -rf _build *.byte
   why3 extract --recursive -D autocheck.drv -D ocaml64 -D ocaml-unsafe-int.drv -L . $1.$2 -o $2.ml
-  ocamlbuild -use-ocamlfind -pkg qcheck -pkg zarith $2.byte > /dev/null
+  eval $(opam env) ocamlbuild -use-ocamlfind -pkg qcheck -pkg zarith $2.byte > /dev/null
   ./$2.byte
   rm -rf _build
   rm -f $2.ml

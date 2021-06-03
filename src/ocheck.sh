@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ####################################################################
-# Copyright 2020 Alain Giorgetti and Clotilde Erard                #
+# Copyright 2020-2021 Alain Giorgetti, Clotilde Erard and          #
+# Jérome Ricciardi                                                 #
 # FEMTO-ST institute                                               #
 ####################################################################
 
@@ -22,8 +23,9 @@ ochk () {
   rm -f *.bak; rm -rf _build *.byte
   echo "Tests with QCheck.ml and SCheck.ml (QuickCheck and SmallCheck for OCaml)"
   echo "WARNING: Works only in src/ folder in the Docker container generated with the provided Dockerfile"
-  ocamlbuild -use-ocamlfind -pkg qcheck -pkg zarith $1.byte > /dev/null
+  eval $(opam env) ocamlbuild -use-ocamlfind -pkg qcheck -pkg zarith $1.byte > /dev/null
   ./$1.byte
+  # It's possible to read the logs in the `_build` folder by commenting this line:
   rm -rf _build
 }
 

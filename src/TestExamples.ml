@@ -144,17 +144,6 @@ module RandomTests = struct
         Properties.is_nil_prop
     ]
 
-(* TODO, create `blist_of_size` a random generator of blist *)
-(*
-    let test_b_list =
-    QCheck_runner.run_tests [
-      Test.make
-        ~name:"5: by enumeration, \"A bounded list with bound 1000 is a bounded list with bound 100\""
-        QCheck.(blist_of_size 1000 10)
-        Properties.b_blist_prop
-    ]
-*)
-
   (** array type *)
 
   (* Lemma about length and make *)
@@ -190,12 +179,12 @@ module RandomTests = struct
 
   (* (sized_array_gen n) generates an (int array) of length n at random *)
 
-  let (sized_array_gen : int -> Random.State.t -> int array) =
+  let sized_array_gen : int -> Random.State.t -> int array =
     fun n -> QCheck.Gen.array_size (fun _ -> n) QCheck.Gen.int
 
   (* rw_axioms_gen generates a quadruple (a,i,j,v) to test rw_axioms. *)
 
-  let (rw_axioms_gen : Random.State.t -> int array * int * int * int) =
+  let rw_axioms_gen : Random.State.t -> int array * int * int * int =
     fun st ->
       let n = QCheck.Gen.int_range 1 5 st in
       (QCheck.Gen.quad
@@ -206,7 +195,7 @@ module RandomTests = struct
       )
       st
 
-let (rw_axioms_arbitrary : (int array * int * int * int) arbitrary) =
+let rw_axioms_arbitrary : (int array * int * int * int) arbitrary =
   QCheck.make
     ~print:(QCheck.Print.(quad (array int) int int int))
     rw_axioms_gen
@@ -280,9 +269,6 @@ module EnumerativeTests = struct
         SCheck.(blist_of_size 1000 10)
         Properties.b_blist_prop
     ]
-(* --- Failure ------------------------------------- *)
-(* Test 5: enumeration, "A list is a b_list" failed: *)
-(* [100; 0; 0; 0; 0; 0; 0; 0; 0; 0]                  *)
 
   (** array type *)
 

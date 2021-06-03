@@ -1,4 +1,4 @@
-AutoCheck is a random and enumerative testing tool for OCaml and WhyML. It is developed by Clotilde Erard and [Alain Giorgetti](https://members.femto-st.fr/alain-giorgetti/en) in the [DISC departement](https://www.femto-st.fr/en/Research-departments/DISC/Presentation) of [FEMTO-ST institute (UMR CNRS 6174)](https://www.femto-st.fr/en).
+AutoCheck is a random and enumerative testing tool for OCaml and WhyML. It is developed in the [DISC departement](https://www.femto-st.fr/en/Research-departments/DISC/Presentation) of [FEMTO-ST institute (UMR CNRS 6174)](https://www.femto-st.fr/en), by Clotilde Erard, [Alain Giorgetti](https://members.femto-st.fr/alain-giorgetti/en) and Jérome Ricciardi.
 
 # Project home
 
@@ -21,11 +21,11 @@ The project is documented by the present file and by the documents listed in the
 # Folders
 
 * src: tool code
-* docs: Documentation
+* docs: some documentation
 
 # How to use this code?
 
-See [EG20, Sections 4 and 5], [Gio20] and the Makefile for the different possible actions.
+See [EGR21, Sections 4, 5 and 6], [Gio20] and the Makefile for the different possible actions.
 
 The command to test WhyML properties is
 
@@ -34,6 +34,13 @@ The command to test WhyML properties is
 where `TestFilePrefix` is the prefix of the WhyML file TestFilePrefix.mlw containing 
 modules with test cases, and `ModuleName` is the name of the WhyML module in the file 
 TestFilePrefix.mlw containing the test cases you want to execute.
+
+The command to test OCaml properties is
+
+	bash ./ocheck.sh TestFilePrefix
+
+where `TestFilePrefix` is the prefix of the OCaml file TestFilePrefix.ml containing 
+modules with test cases you want to execute.
 
 WARNING: The testing process works well only if the file ModuleName.ml it generates 
 doesn't pre-exist in the folder. Therefore, it starts and ends with a command removing
@@ -62,6 +69,10 @@ Springer, Cham (2019).
 WhyML Properties. 20 pages.
 [https://alaingiorgetti.github.io/autocheck/EG20.pdf](https://alaingiorgetti.github.io/autocheck/EG20.pdf).
 
+[EGR21] C. Erard, A. Giorgetti and J. Ricciardi. Towards Random and Enumerative Testing
+for OCaml and WhyML Properties. May 2021, 29 pages. Under submission.
+[Author version](https://github.com/alaingiorgetti/autocheck/blob/master/docs/EGR21.pdf)
+
 [Gio20] A. Giorgetti. Formalisation et vérification de théories de permutations. Research report RR-1715 (in French), 
 UBFC (Université de Bourgogne Franche-Comté) and FEMTO-ST, 17 pages, December 2020.
 [https://hal.archives-ouvertes.fr/hal-03033416](https://hal.archives-ouvertes.fr/hal-03033416).
@@ -70,4 +81,4 @@ UBFC (Université de Bourgogne Franche-Comté) and FEMTO-ST, 17 pages, December 
 pages 202-209, April 2021.
 [https://hal.inria.fr/hal-03190426](https://hal.inria.fr/hal-03190426).
 
-Copyright (C) 2019-2021 Clotilde Erard and Alain Giorgetti
+Copyright (C) 2019-2021 Clotilde Erard, Alain Giorgetti and Jérome Ricciardi

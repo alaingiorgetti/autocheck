@@ -8,7 +8,7 @@ Release 0.1.0
 Release 0.1.1
 =============
 
-+ new case study in the files ABF20.mlw and functions.mlw, docuemented in 
++ new case study in the files ABF20.mlw and functions.mlw, documented in 
   [Gio20] and [Gio21].
 
 + new Dockerfile.
@@ -21,3 +21,21 @@ Warnings:
 
 - The proof files distributed in the other folders than ABF20 and functions
   are not updated. They will be updated in a subsequent release.
+
+Release 0.1.2
+=============
+
++ More properties in the module Properties in TestExamples.mlw.
+
++ List generator added.
+
+o Code as documented in [EGR21].
+
+o New Dockerfile with more recent tool releases and providing a lighter image.
+
+o Certified enumeration programs from ENUM 1.3.
+
+o All proofs restored with the new tool releases: Why3 1.3.3, Coq 8.12.2,
+  Alt-Ergo 2.4.0, CVC4 1.6, Z3 4.7.1 and Z3 4.8.10.
+
+- ctrmac.sh removed.

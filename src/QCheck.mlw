@@ -1,5 +1,5 @@
 (********************************************************************)
-(* Copyright (C) 2020 Clotilde Erard and Alain Giorgetti            *)
+(* Copyright (C) 2020-2021 Clotilde Erard and Alain Giorgetti       *)
 (* FEMTO-ST institute                                               *)
 (********************************************************************)
 
@@ -29,7 +29,7 @@ module Gen
   val int : RS.t -> int
   val int_bound : int -> RS.t -> int
   val int_range : int -> int -> RS.t -> int
-  val array_size : (int -> int) -> (int -> int) -> int -> array int
+  val array_size : (RS.t -> int) -> (RS.t -> int) -> RS.t -> {array int}
 
 end
 
@@ -72,7 +72,7 @@ module Test
   type cell 'a = {
     law : 'a -> bool;
     arb : arbitrary 'a;
-    count : int;
+    count : int;  (* number of tests *)
   }
 
   type t 'a = cell 'a
