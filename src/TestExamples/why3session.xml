@@ -2,61 +2,299 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="6">
-<prover id="0" name="Alt-Ergo" version="2.2.0" timelimit="5" steplimit="0" memlimit="1000"/>
+<prover id="0" name="Alt-Ergo" version="2.4.0" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="1" name="Z3" version="4.8.10" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="2" name="CVC4" version="1.6" timelimit="1" steplimit="0" memlimit="1000"/>
 <file format="whyml">
 <path name=".."/><path name="TestExamples.mlw"/>
 <theory name="Properties">
- <goal name="l_unit">
- <proof prover="0"><result status="unknown" time="0.01"/></proof>
+ <goal name="Abs_gt0">
+ <proof prover="0" timelimit="5" obsolete="true"><result status="timeout" time="1.00"/></proof>
+ <proof prover="1" obsolete="true"><result status="highfailure" time="0.54" steps="1645470"/></proof>
+ <proof prover="2" obsolete="true"><result status="unknown" time="0.09" steps="11604"/></proof>
+ <transf name="split_vc" >
+  <goal name="Abs_gt0.0">
+  <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><result status="timeout" time="5.00"/></proof>
+  <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><result status="highfailure" time="2.94" steps="5651000"/></proof>
+  <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><result status="unknown" time="0.06" steps="11698"/></proof>
+  <transf name="inline_goal" >
+   <goal name="Abs_gt0.0.0">
+   <transf name="split_all_full" >
+    <goal name="Abs_gt0.0.0.0">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00" steps="1948557"/></proof>
+    <proof prover="2"><result status="unknown" time="0.17" steps="21317"/></proof>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="length_make_prop&#39;vc" expl="VC for length_make_prop" proved="true">
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="1"><result status="valid" time="0.03" steps="102226"/></proof>
+ <proof prover="2"><result status="unknown" time="0.08" steps="19444"/></proof>
+ </goal>
+ <goal name="b_barray&#39;vc" expl="VC for b_barray" proved="true">
+ <proof prover="2"><result status="valid" time="0.20" steps="23899"/></proof>
+ </goal>
+ <goal name="b_blist&#39;vc" expl="VC for b_blist" proved="true">
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.13" steps="18133"/></proof>
+ </goal>
+ <goal name="b_blist_prop&#39;vc" expl="VC for b_blist_prop" proved="true">
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.07" steps="13114"/></proof>
  </goal>
 </theory>
-<theory name="RandomTests" proved="true">
+<theory name="RandomTests">
  <goal name="Abs_le_copy" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="5"/></proof>
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.08" steps="22377"/></proof>
  </goal>
  <goal name="div_unique&#39;vc" expl="VC for div_unique" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="4"/></proof>
+ <proof prover="0"><result status="valid" time="0.02" steps="66"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.68" steps="1415841"/></proof>
+ <proof prover="2"><result status="unknown" time="0.68" steps="154770"/></proof>
  </goal>
  <goal name="div_bound&#39;vc" expl="VC for div_bound" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="4"/></proof>
+ <proof prover="0"><result status="valid" time="0.02" steps="66"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.61" steps="1550217"/></proof>
+ <proof prover="2"><result status="unknown" time="0.64" steps="154770"/></proof>
  </goal>
  <goal name="rounds_towards_zero&#39;vc" expl="VC for rounds_towards_zero" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="4"/></proof>
+ <proof prover="0"><result status="valid" time="0.01" steps="66"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.53" steps="1346430"/></proof>
+ <proof prover="2"><result status="unknown" time="0.57" steps="154770"/></proof>
  </goal>
  <goal name="div_1&#39;vc" expl="VC for div_1" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="2"/></proof>
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.07" steps="21237"/></proof>
  </goal>
  <goal name="mod_1&#39;vc" expl="VC for mod_1" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="2"/></proof>
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.07" steps="21237"/></proof>
  </goal>
  <goal name="div_inf&#39;vc" expl="VC for div_inf" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="4"/></proof>
+ <proof prover="0"><result status="valid" time="0.01" steps="66"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.70" steps="1463868"/></proof>
+ <proof prover="2"><result status="unknown" time="0.60" steps="154770"/></proof>
  </goal>
  <goal name="int_prop&#39;vc" expl="VC for int_prop" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="4"/></proof>
+ <proof prover="0"><result status="valid" time="0.02" steps="66"/></proof>
+ <proof prover="1"><result status="highfailure" time="0.73" steps="1495235"/></proof>
+ <proof prover="2"><result status="unknown" time="0.61" steps="154770"/></proof>
  </goal>
  <goal name="is_even&#39;vc" expl="VC for is_even" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="2"/></proof>
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.06" steps="21238"/></proof>
  </goal>
- <goal name="length_make&#39;vc" expl="VC for length_make" proved="true">
- <proof prover="0"><result status="valid" time="0.00" steps="4"/></proof>
+ <goal name="rw_axioms&#39;vc" expl="VC for rw_axioms">
+ <proof prover="0" timelimit="5"><result status="timeout" time="5.00"/></proof>
+ <proof prover="1" timelimit="5"><result status="timeout" time="5.00" steps="4047326"/></proof>
+ <proof prover="2" timelimit="5"><result status="unknown" time="4.27" steps="223398"/></proof>
  </goal>
 </theory>
-<theory name="EnumerativeTests" proved="true">
- <goal name="length_make&#39;vc" expl="VC for length_make" proved="true">
- <proof prover="0"><result status="valid" time="0.02" steps="4"/></proof>
+<theory name="EnumerativeTests">
+ <goal name="inverse_in_place_permut_prop&#39;vc" expl="VC for inverse_in_place_permut_prop">
+ <proof prover="0" obsolete="true"><undone/></proof>
+ <proof prover="1" obsolete="true"><undone/></proof>
+ <proof prover="2" obsolete="true"><undone/></proof>
+ <transf name="split_vc" >
+  <goal name="inverse_in_place_permut_prop&#39;vc.0" expl="precondition">
+  <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <transf name="inline_goal" >
+   <goal name="inverse_in_place_permut_prop&#39;vc.0.0" expl="precondition">
+   <transf name="split_all_full" >
+    <goal name="inverse_in_place_permut_prop&#39;vc.0.0.0" expl="precondition">
+    <proof prover="0" obsolete="true"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1" obsolete="true"><result status="highfailure" time="0.77" steps="1755619"/></proof>
+    <proof prover="2" obsolete="true"><result status="unknown" time="1.52" steps="143367"/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_permut_prop&#39;vc.0.0.0.0" expl="precondition">
+     <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><result status="timeout" time="5.00"/></proof>
+     <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><result status="highfailure" time="4.25" steps="9757274"/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><result status="timeout" time="8.00" steps="938178"/></proof>
+     <transf name="inline_goal" >
+      <goal name="inverse_in_place_permut_prop&#39;vc.0.0.0.0.0" expl="precondition">
+      <proof prover="0"><result status="timeout" time="1.00"/></proof>
+      <proof prover="1"><result status="highfailure" time="0.79" steps="1777741"/></proof>
+      <proof prover="2"><result status="unknown" time="1.57" steps="144437"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="inverse_in_place_permut_prop&#39;vc.0.0.1" expl="precondition">
+    <proof prover="0" obsolete="true"><undone/></proof>
+    <proof prover="1" obsolete="true"><undone/></proof>
+    <proof prover="2" obsolete="true"><undone/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_permut_prop&#39;vc.0.0.1.0" expl="precondition">
+     <proof prover="0"><result status="timeout" time="1.00"/></proof>
+     <proof prover="1"><result status="timeout" time="1.00" steps="2095390"/></proof>
+     <proof prover="2"><result status="unknown" time="1.62" steps="152024"/></proof>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="inverse_in_place_permut_prop&#39;vc.0.0.2" expl="precondition">
+    <proof prover="0" obsolete="true"><undone/></proof>
+    <proof prover="1" obsolete="true"><undone/></proof>
+    <proof prover="2" obsolete="true"><undone/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_permut_prop&#39;vc.0.0.2.0" expl="precondition">
+     <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <transf name="inline_goal" >
+      <goal name="inverse_in_place_permut_prop&#39;vc.0.0.2.0.0" expl="precondition">
+      <proof prover="0"><result status="timeout" time="1.00"/></proof>
+      <proof prover="1"><result status="timeout" time="1.00" steps="1974343"/></proof>
+      <proof prover="2"><result status="unknown" time="1.47" steps="164702"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
  </goal>
- <goal name="inverse_in_place_permut&#39;vc" expl="VC for inverse_in_place_permut" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="6"/></proof>
- </goal>
- <goal name="inverse_values&#39;vc" expl="VC for inverse_values" proved="true">
- <proof prover="0"><result status="valid" time="0.02" steps="3"/></proof>
+ <goal name="inverse_values&#39;vc" expl="VC for inverse_values">
+ <proof prover="0" obsolete="true"><undone/></proof>
+ <proof prover="1" obsolete="true"><undone/></proof>
+ <proof prover="2" obsolete="true"><undone/></proof>
+ <transf name="split_vc" >
+  <goal name="inverse_values&#39;vc.0" expl="index in array bounds">
+  <proof prover="0" obsolete="true"><undone/></proof>
+  <proof prover="1" obsolete="true"><undone/></proof>
+  <proof prover="2" obsolete="true"><undone/></proof>
+  <transf name="split_vc" >
+   <goal name="inverse_values&#39;vc.0.0" expl="index in array bounds" proved="true">
+   <proof prover="0"><result status="valid" time="0.04" steps="52"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00" steps="2046194"/></proof>
+   <proof prover="2"><result status="unknown" time="0.72" steps="151692"/></proof>
+   </goal>
+   <goal name="inverse_values&#39;vc.0.1" expl="index in array bounds">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00" steps="2229590"/></proof>
+   <proof prover="2"><result status="timeout" time="2.00" steps="338469"/></proof>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="inverse_values&#39;vc.1" expl="index in array bounds">
+  <proof prover="0" obsolete="true"><undone/></proof>
+  <proof prover="1" obsolete="true"><undone/></proof>
+  <proof prover="2" obsolete="true"><undone/></proof>
+  <transf name="split_vc" >
+   <goal name="inverse_values&#39;vc.1.0" expl="index in array bounds">
+   <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+   <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+   <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+   <transf name="inline_goal" >
+    <goal name="inverse_values&#39;vc.1.0.0" expl="index in array bounds">
+    <transf name="split_all_full" >
+     <goal name="inverse_values&#39;vc.1.0.0.0" expl="index in array bounds">
+     <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <transf name="inline_goal" >
+      <goal name="inverse_values&#39;vc.1.0.0.0.0" expl="index in array bounds">
+      <proof prover="0"><result status="timeout" time="1.00"/></proof>
+      <proof prover="1"><result status="timeout" time="1.00" steps="2014686"/></proof>
+      <proof prover="2"><result status="unknown" time="1.26" steps="227267"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+   <goal name="inverse_values&#39;vc.1.1" expl="index in array bounds">
+   <proof prover="0"><result status="timeout" time="1.00"/></proof>
+   <proof prover="1"><result status="timeout" time="1.00" steps="1890430"/></proof>
+   <proof prover="2"><result status="unknown" time="0.78" steps="112756"/></proof>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
  </goal>
  <goal name="b_inverse&#39;vc" expl="VC for b_inverse" proved="true">
- <proof prover="0"><result status="valid" time="0.01" steps="4"/></proof>
+ <proof prover="0" timelimit="5" obsolete="true"><undone/></proof>
+ <proof prover="2"><result status="valid" time="0.43" steps="55434"/></proof>
  </goal>
- <goal name="inverse_in_place_inverse&#39;vc" expl="VC for inverse_in_place_inverse" proved="true">
- <proof prover="0"><result status="valid" time="0.02" steps="6"/></proof>
+ <goal name="inverse_in_place_inverse&#39;vc" expl="VC for inverse_in_place_inverse">
+ <proof prover="0" obsolete="true"><undone/></proof>
+ <proof prover="1" obsolete="true"><undone/></proof>
+ <proof prover="2" obsolete="true"><undone/></proof>
+ <transf name="split_vc" >
+  <goal name="inverse_in_place_inverse&#39;vc.0" expl="precondition">
+  <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+  <transf name="inline_goal" >
+   <goal name="inverse_in_place_inverse&#39;vc.0.0" expl="precondition">
+   <transf name="split_all_full" >
+    <goal name="inverse_in_place_inverse&#39;vc.0.0.0" expl="precondition">
+    <proof prover="0" obsolete="true"><undone/></proof>
+    <proof prover="1" obsolete="true"><undone/></proof>
+    <proof prover="2" obsolete="true"><undone/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_inverse&#39;vc.0.0.0.0" expl="precondition">
+     <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <transf name="inline_goal" >
+      <goal name="inverse_in_place_inverse&#39;vc.0.0.0.0.0" expl="precondition">
+      <proof prover="0"><result status="timeout" time="1.00"/></proof>
+      <proof prover="1"><result status="timeout" time="1.00" steps="2059195"/></proof>
+      <proof prover="2"><result status="unknown" time="1.50" steps="143912"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="inverse_in_place_inverse&#39;vc.0.0.1" expl="precondition">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00" steps="2076045"/></proof>
+    <proof prover="2"><result status="unknown" time="0.76" steps="65772"/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_inverse&#39;vc.0.0.1.0" expl="precondition">
+     <proof prover="0"><result status="timeout" time="1.00"/></proof>
+     <proof prover="1"><result status="timeout" time="1.00" steps="2079716"/></proof>
+     <proof prover="2"><result status="unknown" time="0.73" steps="65094"/></proof>
+     </goal>
+    </transf>
+    </goal>
+    <goal name="inverse_in_place_inverse&#39;vc.0.0.2" expl="precondition">
+    <proof prover="0"><result status="timeout" time="1.00"/></proof>
+    <proof prover="1"><result status="timeout" time="1.00" steps="1897207"/></proof>
+    <proof prover="2"><result status="unknown" time="0.74" steps="70714"/></proof>
+    <transf name="split_vc" >
+     <goal name="inverse_in_place_inverse&#39;vc.0.0.2.0" expl="precondition">
+     <proof prover="0" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="1" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <proof prover="2" timelimit="5" memlimit="2000" obsolete="true"><undone/></proof>
+     <transf name="inline_goal" >
+      <goal name="inverse_in_place_inverse&#39;vc.0.0.2.0.0" expl="precondition">
+      <proof prover="0"><result status="timeout" time="1.00"/></proof>
+      <proof prover="1"><result status="highfailure" time="0.79" steps="1654196"/></proof>
+      <proof prover="2"><result status="unknown" time="0.73" steps="75873"/></proof>
+      </goal>
+     </transf>
+     </goal>
+    </transf>
+    </goal>
+   </transf>
+   </goal>
+  </transf>
+  </goal>
+ </transf>
  </goal>
 </theory>
 </file>

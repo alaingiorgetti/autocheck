@@ -9,9 +9,9 @@ Installation with Docker
 ------------------------
 
 1. If Docker is not installed, follow the instructions at
-   [https://docs.docker.com/install/linux/docker-ce/ubuntu/](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+   [https://docs.docker.com/engine/install/debian/](https://docs.docker.com/engine/install/debian/)
    and 
-   [https://docs.docker.com/engine/installation/linux/linux-postinstall/](https://docs.docker.com/engine/installation/linux/linux-postinstall/)
+   [https://docs.docker.com/engine/install/linux-postinstall/](https://docs.docker.com/engine/install/linux-postinstall/)
    to install Docker and run Docker commands without using sudo.
 
 2. Build the Docker image:

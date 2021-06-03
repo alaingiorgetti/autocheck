@@ -1,5 +1,6 @@
 (********************************************************************)
-(* Copyright (C) 2020 Alain Giorgetti and Clotilde Erard            *)
+(* Copyright (C) 2020-2021 Alain Giorgetti, Clotilde Erard and      *)
+(*                                          Jérome Ricciardi        *)
 (* FEMTO-ST institute                                               *)
 (********************************************************************)
 
@@ -31,6 +32,7 @@ module Gen (* Work in progress. TODO: extend in a subsequent release *)
   use option.Option
   use EnumState
   use array.Array
+  use list.List
 
   type gen 'a = {
     create : int -> EnumState.t 'a;
@@ -56,6 +58,7 @@ module SCheck
   use int.Int
   use option.Option
   use array.Array
+  use list.List
   use Gen
 
   type serial 'a = {
@@ -74,6 +77,8 @@ module SCheck
   val function fact_of_size (size: int) : serial {array int}
   val function permut_of_size (size: int) : serial {array int}
   val function barray_of_size (k size: int) : serial {array int}
+
+  val function blist_of_size (k size: int) : serial {list int}
 
 end
 
