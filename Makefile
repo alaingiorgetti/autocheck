@@ -1,5 +1,5 @@
 #######################################################################
-# Copyright (C) 2020-21 Alain Giorgetti and Clotilde Erard            #
+# Copyright (C) 2020-22 Alain Giorgetti and Clotilde Erard            #
 # FEMTO-ST institute                                                  #
 #######################################################################
 
@@ -25,8 +25,7 @@ build: Dockerfile
 
 # Sometimes 'make ctr' does not work. Then run 'bash ./ctr.sh' directly!
 ctr:
-	# Uncomment next line if the container already exists
-	# docker container rm autocheckctr
+	-docker container rm autocheckctr || true
 	bash ./ctr.sh
 
 # For more safety xhost is opened only to the container hostname, retrieved by

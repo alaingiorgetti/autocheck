@@ -33,8 +33,12 @@ RUN apt-get update
 
 RUN apt-get -y install sudo
 
+RUN sudo apt-cache search libgmp-dev
+
+RUN sudo apt-cache search libexpat1-dev
+
 RUN sudo apt-get -y install pkg-config=0.29-6 libgtksourceview2.0-dev=2.10.5-3 python2.7=2.7.16-2+deb10u1 \
- libgmp-dev=2:6.1.2+dfsg-4 libexpat1-dev=2.2.6-2+deb10u3 libgtk-3-dev=3.24.5-1 libgtksourceview-3.0-dev=3.24.9-2 \
+ libgmp-dev libexpat1-dev=2.2.6-2+deb10u4 libgtk-3-dev=3.24.5-1 libgtksourceview-3.0-dev=3.24.9-2 \
  wget=1.20.1-1.1 opam=2.0.3-1+deb10u1 -V
 
 USER opam
